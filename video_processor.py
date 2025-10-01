@@ -318,6 +318,8 @@ class VideoProcessorManager:
     ) -> List[Dict]:
         """
         Find similar products for detected objects.
+        Returns only unique products (deduplicated by image_url),
+        keeping the most confident match for each unique product.
 
         Args:
             detections: List of object detections
@@ -326,14 +328,17 @@ class VideoProcessorManager:
             timestamp: Frame timestamp
 
         Returns:
-            List of product results
+            List of unique product results
         """
-        products = []
         similarity_search = self._get_similarity_search()
 
         # Create crops directory
         crops_dir = frames_dir / "crops"
         crops_dir.mkdir(exist_ok=True)
+
+        # Dictionary to track unique products by image_url
+        # Key: image_url, Value: product dict with highest confidence
+        unique_products = {}
 
         for idx, detection in enumerate(detections):
             try:
@@ -346,25 +351,52 @@ class VideoProcessorManager:
                 crop_path = crops_dir / f"crop_{timestamp:.1f}s_{idx}.jpg"
                 cropped.save(crop_path)
 
-                # Search for similar products
-                similar_images = similarity_search.search(str(crop_path), top_k=3)
+                # Search for most similar product (top 1 only)
+                similar_images = similarity_search.search(str(crop_path), top_k=1)
 
-                # Create product results
-                for rank, image_path in enumerate(similar_images, 1):
-                    product = {
-                        "object_type": detection["label"],
-                        "image_url": image_path,
-                        "title": f"{detection['label'].title()} {rank}",
-                        "stock": "In Stock" if rank % 2 == 1 else "Out of Stock",
-                        "direct_url": f"https://example.com/product/{uuid.uuid4()}",
-                        "confidence": detection["confidence"],
-                    }
-                    products.append(product)
+                # Create product result for the most similar match
+                if similar_images:
+                    image_path = similar_images[0]
+
+                    # Check if we already have this product
+                    if image_path in unique_products:
+                        # Keep the one with higher confidence
+                        if (
+                            detection["confidence"]
+                            > unique_products[image_path]["confidence"]
+                        ):
+                            unique_products[image_path] = {
+                                "object_type": detection["label"],
+                                "image_url": image_path,
+                                "title": f"{detection['label'].title()}",
+                                "stock": "In Stock",
+                                "direct_url": f"https://example.com/product/{uuid.uuid4()}",
+                                "confidence": detection["confidence"],
+                            }
+                    else:
+                        # Add new unique product
+                        unique_products[image_path] = {
+                            "object_type": detection["label"],
+                            "image_url": image_path,
+                            "title": f"{detection['label'].title()}",
+                            "stock": "In Stock",
+                            "direct_url": f"https://example.com/product/{uuid.uuid4()}",
+                            "confidence": detection["confidence"],
+                        }
 
             except Exception as e:
                 logger.error(f"Error finding similar products for detection {idx}: {e}")
                 continue
 
+        # Convert dictionary values to list
+        products = list(unique_products.values())
+
+        # Sort by confidence (highest first)
+        products.sort(key=lambda x: x["confidence"], reverse=True)
+
+        logger.info(
+            f"Found {len(products)} unique products from {len(detections)} detections"
+        )
         return products
 
     def _save_results(
