@@ -187,8 +187,6 @@ export function VideoPlayerModal({
         const startHeight = bottomContentHeight
 
         const handleMouseMove = (e: MouseEvent) => {
-            if (!isResizing) return
-
             const deltaY = startY - e.clientY
             const newHeight = Math.max(200, Math.min(window.innerHeight * 0.8, startHeight + deltaY))
             setBottomContentHeight(newHeight)
@@ -363,11 +361,14 @@ export function VideoPlayerModal({
 
                 {/* Bottom Content Panel with smooth slide animation */}
                 <div
-                    className={`bg-black/90 backdrop-blur-sm border-t border-gray-800 overflow-hidden relative transition-all duration-500 ease-in-out ${showBottomContent ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                        }`}
+                    className={`bg-black/90 backdrop-blur-sm border-t border-gray-800 overflow-hidden relative ${isResizing
+                        ? ''
+                        : 'transition-opacity transition-transform duration-500 ease-in-out'
+                        } ${showBottomContent ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                     style={{
                         height: showBottomContent ? `${bottomContentHeight}px` : '0px',
-                        transform: showBottomContent ? 'translateY(0)' : 'translateY(20px)'
+                        transform: showBottomContent ? 'translateY(0)' : 'translateY(20px)',
+                        transition: isResizing ? 'none' : undefined
                     }}
                 >
                     {/* Drag Handle for Resizing */}
