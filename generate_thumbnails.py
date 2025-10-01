@@ -4,11 +4,10 @@ Video Thumbnail Generator Script
 Extracts thumbnails from videos in the downloaded_videos folder
 """
 
-import os
 import subprocess
-import sys
 import json
 from pathlib import Path
+
 
 def generate_thumbnail(video_path, thumbnail_path, time_offset="00:00:01"):
     """
@@ -21,14 +20,19 @@ def generate_thumbnail(video_path, thumbnail_path, time_offset="00:00:01"):
     """
     try:
         cmd = [
-            'ffmpeg',
-            '-i', str(video_path),
-            '-ss', time_offset,  # Seek to specific time
-            '-vframes', '1',     # Extract 1 frame
-            '-q:v', '2',         # High quality
-            '-vf', 'scale=400:225',  # Simple scale to standard thumbnail size
-            '-y',                # Overwrite existing files
-            str(thumbnail_path)
+            "ffmpeg",
+            "-i",
+            str(video_path),
+            "-ss",
+            time_offset,  # Seek to specific time
+            "-vframes",
+            "1",  # Extract 1 frame
+            "-q:v",
+            "2",  # High quality
+            "-vf",
+            "scale=400:225",  # Simple scale to standard thumbnail size
+            "-y",  # Overwrite existing files
+            str(thumbnail_path),
         ]
 
         print(f"🎬 Generating thumbnail for {video_path.name}...")
@@ -45,23 +49,29 @@ def generate_thumbnail(video_path, thumbnail_path, time_offset="00:00:01"):
         print(f"❌ Exception generating thumbnail: {str(e)}")
         return False
 
+
 def get_video_duration(video_path):
     """Get video duration in seconds using ffprobe"""
     try:
         cmd = [
-            'ffprobe',
-            '-v', 'quiet',
-            '-show_entries', 'format=duration',
-            '-of', 'csv=p=0',
-            str(video_path)
+            "ffprobe",
+            "-v",
+            "quiet",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "csv=p=0",
+            str(video_path),
         ]
 
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode == 0:
             return float(result.stdout.strip())
         return None
-    except:
+    except Exception as e:
+        print(f"❌ Exception getting video duration: {str(e)}")
         return None
+
 
 def format_duration(seconds):
     """Format seconds into MM:SS format"""
@@ -72,6 +82,7 @@ def format_duration(seconds):
     secs = int(seconds % 60)
     return f"{minutes}:{secs:02d}"
 
+
 def get_file_size(file_path):
     """Get file size in human readable format"""
     try:
@@ -79,13 +90,15 @@ def get_file_size(file_path):
         if size_bytes < 1024:
             return f"{size_bytes} B"
         elif size_bytes < 1024**2:
-            return f"{size_bytes/1024:.1f} KB"
+            return f"{size_bytes / 1024:.1f} KB"
         elif size_bytes < 1024**3:
-            return f"{size_bytes/(1024**2):.1f} MB"
+            return f"{size_bytes / (1024**2):.1f} MB"
         else:
-            return f"{size_bytes/(1024**3):.1f} GB"
-    except:
+            return f"{size_bytes / (1024**3):.1f} GB"
+    except Exception as e:
+        print(f"❌ Exception getting file size: {str(e)}")
         return "Unknown"
+
 
 def main():
     # Paths
@@ -98,7 +111,7 @@ def main():
     thumbnails_dir.mkdir(parents=True, exist_ok=True)
 
     # Video extensions
-    video_extensions = {'.mp4', '.avi', '.mov', '.mkv', '.webm', '.m4v'}
+    video_extensions = {".mp4", ".avi", ".mov", ".mkv", ".webm", ".m4v"}
 
     # Find all video files
     video_files = []
@@ -128,7 +141,7 @@ def main():
 
         # Use middle of video for thumbnail, or 1 second if video is short
         if duration_seconds and duration_seconds > 2:
-            time_offset = f"{int(duration_seconds//2)}s"
+            time_offset = f"{int(duration_seconds // 2)}s"
         else:
             time_offset = "00:00:01"
 
@@ -138,10 +151,10 @@ def main():
         video_id = f"video-{video_file.stem.replace('.', '_').replace(' ', '-')}"
 
         # Generate title from filename
-        if video_file.stem.count('_') > 0 or len(video_file.stem) == 11:
+        if video_file.stem.count("_") > 0 or len(video_file.stem) == 11:
             title = "Fashion Video Analysis"
         else:
-            title = video_file.stem.replace('_', ' ').replace('-', ' ').title()
+            title = video_file.stem.replace("_", " ").replace("-", " ").title()
 
         video_data = {
             "id": video_id,
@@ -149,7 +162,9 @@ def main():
             "description": f"Video analysis content from {video_file.name}",
             "filename": video_file.name,
             "videoUrl": f"/downloaded_videos/{video_file.name}",
-            "thumbnail": f"/videos/thumbnails/{thumbnail_name}" if success else "https://images.unsplash.com/photo-1489599458755-a3b6aae74f5e?w=400&h=225&fit=crop&q=80",
+            "thumbnail": f"/videos/thumbnails/{thumbnail_name}"
+            if success
+            else "https://images.unsplash.com/photo-1489599458755-a3b6aae74f5e?w=400&h=225&fit=crop&q=80",
             "localThumbnail": f"/videos/thumbnails/{thumbnail_name}",
             "duration": format_duration(duration_seconds),
             "views": f"{1000 + i * 200}",  # Placeholder views
@@ -159,15 +174,20 @@ def main():
             "releaseDate": video_file.stat().st_mtime,  # Use file modification time
             "source": "downloaded_videos",
             "fileSize": get_file_size(video_file),
-            "thumbnailGenerated": success
+            "thumbnailGenerated": success,
         }
 
         # Convert timestamp to ISO string
         from datetime import datetime
-        video_data["releaseDate"] = datetime.fromtimestamp(video_data["releaseDate"]).strftime('%Y-%m-%d')
+
+        video_data["releaseDate"] = datetime.fromtimestamp(
+            video_data["releaseDate"]
+        ).strftime("%Y-%m-%d")
 
         videos_data.append(video_data)
-        print(f"📊 Video info: {title} - {video_data['duration']} - {video_data['fileSize']}")
+        print(
+            f"📊 Video info: {title} - {video_data['duration']} - {video_data['fileSize']}"
+        )
 
     # Create updated videos.json
     videos_json_data = {
@@ -179,18 +199,19 @@ def main():
             "thumbnail_directory": "public/videos/thumbnails",
             "supported_formats": list(video_extensions),
             "auto_refresh": True,
-            "thumbnails_generated": True
-        }
+            "thumbnails_generated": True,
+        },
     }
 
     # Save updated videos.json
-    with open(videos_json_path, 'w') as f:
+    with open(videos_json_path, "w") as f:
         json.dump(videos_json_data, f, indent=2)
 
-    print(f"\n✅ Thumbnail generation complete!")
+    print("\n✅ Thumbnail generation complete!")
     print(f"📄 Updated videos.json with {len(videos_data)} videos")
     print(f"📸 Thumbnails saved to: {thumbnails_dir}")
-    print(f"🌐 Frontend can now display real video thumbnails")
+    print("🌐 Frontend can now display real video thumbnails")
+
 
 if __name__ == "__main__":
     main()
