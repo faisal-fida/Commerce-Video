@@ -14,8 +14,9 @@ import {
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 1000; // ms
+const MAX_RETRIES = 1;
+const RETRY_DELAY = 500; // ms
+const REQUEST_TIMEOUT = 5000; // 5 seconds
 
 /**
  * Custom error class for API errors
@@ -38,7 +39,7 @@ class APIException extends Error {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Make an HTTP request with retry logic
+ * Make an HTTP request with retry logic and timeout
  */
 async function fetchWithRetry(
   url: string,
@@ -46,12 +47,19 @@ async function fetchWithRetry(
   retries = MAX_RETRIES
 ): Promise<Response> {
   try {
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+
     const response = await fetch(url, {
       ...options,
+      signal: controller.signal,
       headers: {
         ...options.headers,
       },
     });
+
+    clearTimeout(timeoutId);
 
     // If response is ok or client error (4xx), return immediately
     if (response.ok || (response.status >= 400 && response.status < 500)) {
@@ -69,9 +77,14 @@ async function fetchWithRetry(
 
     return response;
   } catch (error) {
-    // Network errors - retry
-    if (retries > 0) {
-      console.warn(`Network error, retrying... (${retries} left)`);
+    // Network errors or timeout - retry
+    if (retries > 0 && error instanceof Error) {
+      const isTimeout = error.name === "AbortError";
+      console.warn(
+        `${
+          isTimeout ? "Timeout" : "Network error"
+        }, retrying... (${retries} left)`
+      );
       await delay(RETRY_DELAY);
       return fetchWithRetry(url, options, retries - 1);
     }

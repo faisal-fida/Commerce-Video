@@ -84,20 +84,15 @@
     background-color: #000000;
     overflow-x: hidden;
   }
-
-  /* Hide the default browser scrollbar on the main page */
-  html {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-  }
-
-  html::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
   
   body {
     @apply bg-black text-white;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Hide scrollbar when video player modal is open */
+  body.modal-open {
+    overflow: hidden;
   }
 }
 

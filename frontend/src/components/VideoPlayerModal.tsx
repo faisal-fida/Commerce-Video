@@ -120,6 +120,9 @@ export function VideoPlayerModal({
         setLoadingProducts(true)
         setProductsError(null)
 
+        const startTime = performance.now()
+        console.log(`🔄 Starting to load products for time ${roundedTime}s...`)
+
         try {
             // Fetch products and bundles in parallel
             const [productsData, bundlesData] = await Promise.all([
@@ -127,12 +130,17 @@ export function VideoPlayerModal({
                 api.getBundles(video.id, roundedTime)
             ])
 
+            const endTime = performance.now()
+            const duration = (endTime - startTime).toFixed(0)
+
             setProducts(mapProductResults(productsData))
             setBundles(bundlesData)
 
-            console.log(`Loaded ${productsData.length} products for time ${roundedTime}s`)
+            console.log(`✅ Loaded ${productsData.length} products and ${bundlesData.length} bundles in ${duration}ms`)
         } catch (error) {
-            console.error('Error loading products:', error)
+            const endTime = performance.now()
+            const duration = (endTime - startTime).toFixed(0)
+            console.error(`❌ Error loading products after ${duration}ms:`, error)
             setProductsError('Failed to load products. Please try again.')
             setProducts([])
             setBundles([])
@@ -152,7 +160,7 @@ export function VideoPlayerModal({
         }
 
         // Only load when video is paused (not during playback)
-        // Reduced debounce time for better responsiveness
+        // Minimal debounce time for best responsiveness
         const timeoutId = setTimeout(() => {
             if (!isVideoPlayingRef.current) {
                 const roundedTime = Math.round(currentTime / 6) * 6
@@ -165,7 +173,7 @@ export function VideoPlayerModal({
 
                 loadProductsForTime(currentTime)
             }
-        }, 300) // Reduced debounce time from 1000ms to 300ms
+        }, 100) // Minimal debounce time for instant feel
 
         return () => clearTimeout(timeoutId)
     }, [currentTime, video.id, video.status])
@@ -238,6 +246,16 @@ export function VideoPlayerModal({
         // Set initial playing state based on video element
         if (videoRef.current) {
             isVideoPlayingRef.current = !videoRef.current.paused
+        }
+    }, [])
+
+    useEffect(() => {
+        // Add modal-open class to body to hide main page scrollbar
+        document.body.classList.add('modal-open')
+
+        return () => {
+            // Remove modal-open class when modal closes
+            document.body.classList.remove('modal-open')
         }
     }, [])
 

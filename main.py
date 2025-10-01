@@ -310,6 +310,44 @@ async def get_bundles(video_id: str, time: Optional[float] = None):
                         bundles.append(bundle)
                         break
 
+        # Strategy 4: Fallback - create bundles from any available products
+        if len(bundles) == 0 and len(products) >= 2:
+            # Group any 2-3 products together as a "Style Bundle"
+            bundle_size = min(3, len(products))
+            selected_products = products[:bundle_size]
+
+            bundle_products = [
+                {
+                    "object_type": p.object_type,
+                    "image_url": p.image_url,
+                    "title": p.title,
+                    "stock": p.stock,
+                    "direct_url": p.direct_url,
+                }
+                for p in selected_products
+            ]
+
+            product_types = [p.object_type for p in selected_products]
+            product_types_str = " + ".join(product_types)
+
+            bundle = {
+                "id": f"bundle-style-{video_id}-{time}",
+                "name": "Style Bundle",
+                "description": f"Featured items: {product_types_str}",
+                "total_price": 69.98 * bundle_size,
+                "discount_price": 49.98 * bundle_size,
+                "category": "style",
+                "image_url": selected_products[0].image_url,
+                "product_ids": [p.title for p in selected_products],
+                "products": bundle_products,
+                "similarity_score": 0.7,
+            }
+            bundles.append(bundle)
+
+            logger.info(
+                f"Created fallback bundle with {bundle_size} products for video {video_id} at {time}s"
+            )
+
         logger.info(f"Created {len(bundles)} bundles for video {video_id} at {time}s")
         return bundles[:3]  # Return max 3 bundles
 

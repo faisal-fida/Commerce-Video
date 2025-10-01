@@ -17,7 +17,7 @@ export default function VideoShowcase() {
   const [showCart, setShowCart] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [watchlist, setWatchlist] = useState<Video[]>([])
-  const [isLoadingVideos, setIsLoadingVideos] = useState(false)
+  const [isLoadingVideos, setIsLoadingVideos] = useState(true)
   const [showUpload, setShowUpload] = useState(false)
 
   const featuredVideo = discoveredVideos.length > 0 ? discoveredVideos[0] : null
