@@ -1,0 +1,401 @@
+{
+  "application_name": "Scene to Screen - Interactive Video Shopping",
+  "original_framework": "Vue.js 3 with Vite",
+  "target_framework": "Next.js 14 with App Router",
+
+  "color_palette": {
+    "css_variables": {
+      "light_mode": {
+        "background": "hsl(0, 0%, 100%)",
+        "foreground": "hsl(222.2, 84%, 4.9%)",
+        "card": "hsl(0, 0%, 100%)",
+        "card-foreground": "hsl(222.2, 84%, 4.9%)",
+        "popover": "hsl(0, 0%, 100%)",
+        "popover-foreground": "hsl(222.2, 84%, 4.9%)",
+        "primary": "hsl(222.2, 47.4%, 11.2%)",
+        "primary-foreground": "hsl(210, 40%, 98%)",
+        "secondary": "hsl(210, 40%, 96%)",
+        "secondary-foreground": "hsl(222.2, 47.4%, 11.2%)",
+        "muted": "hsl(210, 40%, 96%)",
+        "muted-foreground": "hsl(215.4, 16.3%, 46.9%)",
+        "accent": "hsl(210, 40%, 96%)",
+        "accent-foreground": "hsl(222.2, 47.4%, 11.2%)",
+        "destructive": "hsl(0, 84.2%, 60.2%)",
+        "destructive-foreground": "hsl(210, 40%, 98%)",
+        "border": "hsl(214.3, 31.8%, 91.4%)",
+        "input": "hsl(214.3, 31.8%, 91.4%)",
+        "ring": "hsl(222.2, 84%, 4.9%)",
+        "radius": "0.5rem"
+      },
+      "dark_mode": {
+        "background": "hsl(222.2, 84%, 4.9%)",
+        "foreground": "hsl(210, 40%, 98%)",
+        "card": "hsl(222.2, 84%, 4.9%)",
+        "card-foreground": "hsl(210, 40%, 98%)",
+        "popover": "hsl(222.2, 84%, 4.9%)",
+        "popover-foreground": "hsl(210, 40%, 98%)",
+        "primary": "hsl(210, 40%, 98%)",
+        "primary-foreground": "hsl(222.2, 47.4%, 11.2%)",
+        "secondary": "hsl(217.2, 32.6%, 17.5%)",
+        "secondary-foreground": "hsl(210, 40%, 98%)",
+        "muted": "hsl(217.2, 32.6%, 17.5%)",
+        "muted-foreground": "hsl(215, 20.2%, 65.1%)",
+        "accent": "hsl(217.2, 32.6%, 17.5%)",
+        "accent-foreground": "hsl(210, 40%, 98%)",
+        "destructive": "hsl(0, 62.8%, 30.6%)",
+        "destructive-foreground": "hsl(210, 40%, 98%)",
+        "border": "hsl(217.2, 32.6%, 17.5%)",
+        "input": "hsl(217.2, 32.6%, 17.5%)",
+        "ring": "hsl(212.7, 26.8%, 83.9%)"
+      }
+    },
+    "brand_colors": {
+      "cyan": {
+        "primary": "#06b6d4",
+        "gradient_from": "#0891b2",
+        "gradient_to": "#3b82f6"
+      },
+      "purple": {
+        "primary": "#a855f7",
+        "gradient_from": "#7c3aed",
+        "gradient_to": "#d946ef"
+      },
+      "background_black": "#000000",
+      "white": "#ffffff",
+      "red_accent": "#ef4444"
+    }
+  },
+
+  "typography": {
+    "font_family": "system-ui, -apple-system, sans-serif",
+    "headings": {
+      "h1": {
+        "size": "2xl",
+        "weight": "bold",
+        "gradient": "from-cyan-400 to-blue-400",
+        "line_height": "1.2"
+      },
+      "h2": {
+        "size": "xl",
+        "weight": "semibold",
+        "line_height": "1.3"
+      },
+      "h3": {
+        "size": "lg",
+        "weight": "semibold",
+        "line_height": "1.4"
+      }
+    },
+    "body": {
+      "base": "text-base",
+      "small": "text-sm",
+      "xs": "text-xs"
+    }
+  },
+
+  "layout": {
+    "max_width": "7xl",
+    "padding": "p-4",
+    "spacing": {
+      "sections": "space-y-8",
+      "items": "space-y-4",
+      "inline": "space-x-4"
+    }
+  },
+
+  "components": {
+    "VideoCard": {
+      "dimensions": {
+        "width": "280px",
+        "height": "auto"
+      },
+      "structure": [
+        "Thumbnail container (aspect-video)",
+        "Play overlay (hover effect)",
+        "Duration badge (bottom-right)",
+        "Rating badge (top-left)",
+        "Content section (title, description, views, tags)",
+        "Action buttons (Add to List, Shop)"
+      ],
+      "interactions": {
+        "hover": "scale-105, z-index increase",
+        "click": "opens VideoPlayerModal",
+        "add_to_watchlist": "console log",
+        "add_to_cart": "adds sample product to cart"
+      },
+      "transitions": {
+        "all": "duration-300",
+        "image": "group-hover:scale-110 duration-300"
+      }
+    },
+    "CartDrawer": {
+      "position": "fixed right",
+      "width": "w-96",
+      "background": "bg-black/95 backdrop-blur-xl",
+      "structure": [
+        "Header with cart icon and count",
+        "Scrollable items list",
+        "Empty state",
+        "Footer with subtotal, tax, total",
+        "Checkout button"
+      ],
+      "animations": {
+        "open": "translate-x-0",
+        "close": "translate-x-full",
+        "transition": "duration-300"
+      }
+    },
+    "VideoPlayerModal": {
+      "position": "fixed inset-0",
+      "z_index": "z-50",
+      "background": "bg-black",
+      "structure": [
+        "Header navigation",
+        "Search overlay (toggle)",
+        "Video player (HTML5 video element)",
+        "Info overlay (bottom)",
+        "Tab bar with resizable bottom content",
+        "Product filters sidebar (resizable)",
+        "Cart drawer integration",
+        "Fullscreen products popup (on pause)"
+      ],
+      "features": {
+        "resize_bottom_panel": "drag handle, min 200px, max 80vh",
+        "resize_sidebar": "drag handle, min 200px, max 600px",
+        "pause_detection": "shows fullscreen products",
+        "time_based_products": "±3 seconds tolerance",
+        "product_search": "filters detected products"
+      }
+    },
+    "TabBar": {
+      "tabs": ["products", "bundles", "profile"],
+      "icons": ["Grid", "Package", "User"],
+      "styling": {
+        "active": "bg-gradient-to-r from-purple-600/20 to-cyan-600/20 border border-purple-500/30",
+        "inactive": "text-white/60 hover:text-white hover:bg-white/5"
+      },
+      "animations": "motion plugin with spring damping"
+    },
+    "ProductsTab": {
+      "layout": "grid grid-cols-8 gap-4",
+      "features": [
+        "Category filters",
+        "Time-based filtering (±3s)",
+        "Product images modal (multiple images)",
+        "Hover actions (Add, View, Favorite)",
+        "Confidence badges",
+        "Timestamp display"
+      ],
+      "styling": {
+        "card": "bg-white/5 backdrop-blur-sm rounded-lg border border-white/10",
+        "hover": "bg-white/10 scale-105"
+      }
+    },
+    "Header": {
+      "structure": [
+        "Logo with gradient icon",
+        "Search button",
+        "Refresh button (with spin animation)",
+        "Cart button (with count badge)",
+        "Profile avatar"
+      ],
+      "background": "bg-gradient-to-b from-black/80 to-transparent",
+      "styling": {
+        "logo_text": "text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent"
+      }
+    },
+    "SearchBar": {
+      "transition": "slide-down",
+      "styling": "bg-white/10 backdrop-blur-md border border-white/20",
+      "placeholder": "Search videos...",
+      "icon_position": "left-4"
+    },
+    "FeaturedVideo": {
+      "height": "h-96",
+      "background": "gradient overlay on image",
+      "structure": [
+        "Featured badge (red, uppercase)",
+        "Title (text-4xl font-bold)",
+        "Description (line-clamp-2)",
+        "Meta info (views, rating, duration)",
+        "Play button (white bg, black text)",
+        "My List button (white/20 backdrop-blur)"
+      ]
+    }
+  },
+
+  "features": {
+    "featured_video_section": {
+      "enabled": true,
+      "source": "first video from discoveredVideos",
+      "background_image": "unsplash placeholder"
+    },
+    "video_categories": {
+      "available_videos": "videos from videos.json",
+      "layout": "horizontal scroll with arrows",
+      "scroll_amount": "320px per click"
+    },
+    "search": {
+      "debounce": "none (immediate)",
+      "fields": ["title", "description", "tags"],
+      "case_insensitive": true
+    },
+    "shopping_cart": {
+      "persistence": "none (session only)",
+      "tax_rate": "8%",
+      "features": ["quantity update", "remove item", "subtotal calculation"]
+    },
+    "video_discovery": {
+      "source": "/videos.json",
+      "verification": "checks if video files exist",
+      "cache": "30 seconds",
+      "refresh": "manual via refresh button"
+    }
+  },
+
+  "data_structure": {
+    "video": {
+      "id": "string (e.g., video-8CKF3ziEPCM-1)",
+      "title": "string",
+      "description": "string",
+      "filename": "string",
+      "videoUrl": "string (/downloaded_videos/...)",
+      "thumbnail": "string",
+      "localThumbnail": "string",
+      "duration": "string (MM:SS)",
+      "views": "string",
+      "rating": "number",
+      "category": "string",
+      "tags": "string[]",
+      "releaseDate": "string (YYYY-MM-DD)"
+    },
+    "product": {
+      "id": "string",
+      "name": "string",
+      "price": "number",
+      "image": "string",
+      "image_url": "string",
+      "category": "string",
+      "confidence": "number",
+      "timestamp": "number (seconds)",
+      "original_detection_time": "number",
+      "detected_category_from_video": "string",
+      "ai_generated_search_query": "string",
+      "found_online_images": "array",
+      "local_images": "array"
+    },
+    "cart_item": {
+      "id": "string",
+      "name": "string",
+      "price": "number",
+      "image": "string",
+      "quantity": "number"
+    }
+  },
+
+  "responsive_behavior": {
+    "breakpoints": "Tailwind default (sm, md, lg, xl, 2xl)",
+    "mobile": {
+      "header": "responsive flex",
+      "video_grid": "horizontal scroll, no wrapping",
+      "cart_drawer": "full width on small screens"
+    },
+    "desktop": {
+      "max_width": "max-w-7xl mx-auto",
+      "video_grid": "horizontal scroll with visible arrows"
+    }
+  },
+
+  "animations": {
+    "transitions": {
+      "slide-down": {
+        "enter": "opacity 0, translateY(-20px)",
+        "enter-active": "all 0.3s ease",
+        "leave": "opacity 0, translateY(-20px)",
+        "leave-active": "all 0.3s ease"
+      },
+      "slide-up": {
+        "enter": "translateY(100%)",
+        "enter-active": "transform 0.3s ease",
+        "leave": "translateY(100%)",
+        "leave-active": "transform 0.3s ease"
+      },
+      "fade": {
+        "enter": "opacity 0",
+        "enter-active": "opacity 0.3s ease",
+        "leave": "opacity 0",
+        "leave-active": "opacity 0.3s ease"
+      }
+    },
+    "hover_effects": {
+      "video_card": "scale-105, z-10",
+      "buttons": "bg transition",
+      "images": "scale-110"
+    },
+    "loading_states": {
+      "spinner": "animate-spin w-12 h-12 border-2 border-cyan-500 border-t-transparent rounded-full"
+    }
+  },
+
+  "icons": {
+    "library": "lucide-vue-next",
+    "used_icons": [
+      "Search",
+      "ShoppingBag",
+      "Play",
+      "Plus",
+      "Star",
+      "ChevronLeft",
+      "ChevronRight",
+      "ArrowLeft",
+      "Maximize",
+      "X",
+      "Minus",
+      "Trash2",
+      "CreditCard",
+      "Grid",
+      "Package",
+      "User",
+      "Heart",
+      "ExternalLink",
+      "Camera",
+      "Film",
+      "Upload",
+      "Link"
+    ]
+  },
+
+  "state_management": {
+    "framework": "Pinia (Vue)",
+    "equivalent": "React useState/useContext",
+    "states": [
+      "discoveredVideos",
+      "selectedVideo",
+      "showSearchBar",
+      "searchQuery",
+      "showCart",
+      "cartItems",
+      "watchlist",
+      "isLoadingVideos",
+      "products",
+      "currentTime",
+      "showBottomContent",
+      "activeTab"
+    ]
+  },
+
+  "routing": {
+    "original": {
+      "framework": "vue-router",
+      "routes": [
+        {
+          "path": "/",
+          "component": "VideoShowcase"
+        }
+      ]
+    },
+    "nextjs_equivalent": {
+      "pages": ["app/page.tsx (main page)"]
+    }
+  }
+}

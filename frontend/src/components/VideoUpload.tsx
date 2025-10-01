@@ -1,131 +1,296 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { api, APIException } from "@/lib/api";
+import { VideoUploadResponse } from "@/lib/types";
 
-export default function VideoUpload() {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [isUploading, setIsUploading] = useState(false);
-    const [uploadMessage, setUploadMessage] = useState("");
+interface VideoUploadProps {
+    onUploadComplete?: (videoId: string) => void;
+    onClose?: () => void;
+}
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files && event.target.files.length > 0) {
-            setSelectedFile(event.target.files[0]);
-            setUploadMessage("");
+const ALLOWED_TYPES = ["video/mp4", "video/avi", "video/mov", "video/x-matroska", "video/webm", "video/x-m4v"];
+const MAX_SIZE_MB = parseInt(process.env.NEXT_PUBLIC_MAX_UPLOAD_SIZE || "100");
+const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
+
+export function VideoUpload({ onUploadComplete, onClose }: VideoUploadProps) {
+    const [file, setFile] = useState<File | null>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<VideoUploadResponse | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const validateFile = (file: File): string | null => {
+        // Check file type
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            return "Invalid file type. Please upload MP4, AVI, MOV, MKV, WEBM, or M4V files.";
         }
+
+        // Check file size
+        if (file.size > MAX_SIZE_BYTES) {
+            return `File too large. Maximum size is ${MAX_SIZE_MB}MB.`;
+        }
+
+        return null;
     };
 
-    const handleRemoveFile = () => {
-        setSelectedFile(null);
-        setUploadMessage("");
-    };
-
-    const handleUpload = async () => {
-        if (!selectedFile) {
-            setUploadMessage("Please select a file first.");
+    const handleFileSelect = (selectedFile: File) => {
+        const validationError = validateFile(selectedFile);
+        if (validationError) {
+            setError(validationError);
             return;
         }
 
-        setIsUploading(true);
-        setUploadMessage("Uploading...");
+        setFile(selectedFile);
+        setError(null);
+        setSuccess(null);
+    };
 
-        const formData = new FormData();
-        formData.append("file", selectedFile);
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(true);
+    }, []);
 
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData,
-            });
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
+    }, []);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Upload failed');
-            }
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragging(false);
 
-            const result = await response.json();
-            setUploadMessage(`Upload successful! Video ID: ${result.video_id}. It is now being processed.`);
-            // TODO: Add logic to refresh the video list
-        } catch (error: any) {
-            setUploadMessage(`Error: ${error.message}`);
-        } finally {
-            setIsUploading(false);
-            setSelectedFile(null);
+        const droppedFile = e.dataTransfer.files[0];
+        if (droppedFile) {
+            handleFileSelect(droppedFile);
+        }
+    }, []);
+
+    const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
+            handleFileSelect(selectedFile);
         }
     };
 
-    return (
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md mx-auto my-8">
-            <h2 className="text-2xl font-bold mb-4 text-center text-white">
-                Upload a Video
-            </h2>
+    const handleUpload = async () => {
+        if (!file) return;
 
-            {selectedFile ? (
-                <div className="text-center">
-                    <p className="text-gray-300 mb-4">
-                        Selected file: {selectedFile.name}
-                    </p>
+        setUploading(true);
+        setError(null);
+        setUploadProgress(0);
+
+        try {
+            // Simulate progress (FastAPI doesn't provide upload progress by default)
+            const progressInterval = setInterval(() => {
+                setUploadProgress((prev) => {
+                    if (prev >= 90) {
+                        clearInterval(progressInterval);
+                        return 90;
+                    }
+                    return prev + 10;
+                });
+            }, 200);
+
+            const response = await api.uploadVideo(file);
+
+            clearInterval(progressInterval);
+            setUploadProgress(100);
+            setSuccess(response);
+
+            // Notify parent component
+            if (onUploadComplete) {
+                onUploadComplete(response.video_id);
+            }
+
+            // Auto-close after 2 seconds if onClose is provided
+            if (onClose) {
+                setTimeout(() => {
+                    onClose();
+                }, 2000);
+            }
+        } catch (err) {
+            const errorMessage =
+                err instanceof APIException
+                    ? err.detail
+                    : "Upload failed. Please try again.";
+            setError(errorMessage);
+            setUploadProgress(0);
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleReset = () => {
+        setFile(null);
+        setError(null);
+        setSuccess(null);
+        setUploadProgress(0);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    };
+
+    const formatFileSize = (bytes: number): string => {
+        if (bytes < 1024) return `${bytes} B`;
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    };
+
+    return (
+        <div className="bg-gray-900 rounded-lg p-6 max-w-2xl mx-auto">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">Upload Video</h2>
+                {onClose && (
                     <button
-                        onClick={handleRemoveFile}
-                        className="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5"
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-white transition-colors"
                     >
-                        Remove
+                        <X className="w-6 h-6" />
                     </button>
-                </div>
-            ) : (
-                <div className="flex items-center justify-center w-full">
-                    <label
-                        htmlFor="dropzone-file"
-                        className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600"
+                )}
+            </div>
+
+            {/* Drop Zone */}
+            {!file && !success && (
+                <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${isDragging
+                            ? "border-cyan-500 bg-cyan-500/10"
+                            : "border-gray-700 hover:border-gray-600"
+                        }`}
+                >
+                    <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-white text-lg mb-2">
+                        Drag & drop your video here
+                    </p>
+                    <p className="text-gray-400 text-sm mb-4">or</p>
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-2 rounded-lg transition-colors"
                     >
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <svg
-                                className="w-8 h-8 mb-4 text-gray-400"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 20 16"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 4.25a5.592 5.592 0 0 0-4.025 2.227 5.253 5.253 0 0 0-1.254 3.7A5.226 5.226 0 0 0 5 13h3m0 0v-5m0 5l-2-2m2 2 2-2"
-                                />
-                            </svg>
-                            <p className="mb-2 text-sm text-gray-400">
-                                <span className="font-semibold">Click to upload</span> or drag
-                                and drop
-                            </p>
-                            <p className="text-xs text-gray-400">
-                                MP4, AVI, MOV, or WMV (MAX. 500MB)
-                            </p>
-                        </div>
-                        <input
-                            id="dropzone-file"
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            accept="video/mp4,video/avi,video/quicktime,video/x-ms-wmv"
-                        />
-                    </label>
+                        Browse Files
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ALLOWED_TYPES.join(",")}
+                        onChange={handleFileInputChange}
+                        className="hidden"
+                    />
+                    <p className="text-gray-500 text-xs mt-4">
+                        Supported formats: MP4, AVI, MOV, MKV, WEBM, M4V (Max {MAX_SIZE_MB}
+                        MB)
+                    </p>
                 </div>
             )}
 
-            <button
-                type="button"
-                onClick={handleUpload}
-                disabled={!selectedFile || isUploading}
-                className="w-full mt-6 text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:bg-gray-500 disabled:cursor-not-allowed"
-            >
-                {isUploading ? "Uploading..." : "Upload"}
-            </button>
+            {/* File Selected */}
+            {file && !success && (
+                <div className="space-y-4">
+                    <div className="bg-gray-800 rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                                <p className="text-white font-medium mb-1">{file.name}</p>
+                                <p className="text-gray-400 text-sm">
+                                    {formatFileSize(file.size)}
+                                </p>
+                            </div>
+                            {!uploading && (
+                                <button
+                                    onClick={handleReset}
+                                    className="text-gray-400 hover:text-white transition-colors ml-4"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
 
-            {uploadMessage && (
-                <p className="mt-4 text-center text-sm text-gray-400">
-                    {uploadMessage}
-                </p>
+                        {/* Progress Bar */}
+                        {uploading && (
+                            <div className="mt-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm text-gray-400">Uploading...</span>
+                                    <span className="text-sm text-cyan-400">
+                                        {uploadProgress}%
+                                    </span>
+                                </div>
+                                <div className="w-full bg-gray-700 rounded-full h-2">
+                                    <div
+                                        className="bg-cyan-500 h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${uploadProgress}%` }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Upload Button */}
+                    {!uploading && (
+                        <button
+                            onClick={handleUpload}
+                            disabled={uploading}
+                            className="w-full bg-cyan-500 hover:bg-cyan-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white py-3 rounded-lg transition-colors font-medium"
+                        >
+                            {uploading ? (
+                                <span className="flex items-center justify-center">
+                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    Uploading...
+                                </span>
+                            ) : (
+                                "Upload Video"
+                            )}
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+                <div className="bg-green-900/20 border border-green-500 rounded-lg p-6 text-center">
+                    <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-white mb-2">
+                        Upload Successful!
+                    </h3>
+                    <p className="text-gray-300 mb-4">
+                        Your video is being processed. This may take a few minutes.
+                    </p>
+                    <p className="text-sm text-gray-400">
+                        Video ID: <span className="text-cyan-400">{success.video_id}</span>
+                    </p>
+                    {onClose && (
+                        <button
+                            onClick={onClose}
+                            className="mt-4 bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors"
+                        >
+                            Close
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+                <div className="bg-red-900/20 border border-red-500 rounded-lg p-4 flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                        <p className="text-red-400 font-medium">Upload Failed</p>
+                        <p className="text-red-300 text-sm mt-1">{error}</p>
+                    </div>
+                    <button
+                        onClick={() => setError(null)}
+                        className="text-red-400 hover:text-red-300 transition-colors"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
             )}
         </div>
     );
 }
+

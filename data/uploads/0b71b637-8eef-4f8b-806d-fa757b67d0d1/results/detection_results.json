@@ -1,0 +1,254 @@
+{
+  "0.0": [
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (24).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/6d82bf6d-6d49-4906-9639-e233e5617386",
+      "confidence": 0.6912885904312134
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (19).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/5f62e175-d960-4f76-963c-156785e5cffa",
+      "confidence": 0.6912885904312134
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (21).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/cf3d5b20-8be5-40df-b32e-1715080c27e3",
+      "confidence": 0.6912885904312134
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (3).jpg",
+      "title": "Bag 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/7a334872-a9d3-4f37-998d-9e36de8f15ff",
+      "confidence": 0.5093793869018555
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (2).jpg",
+      "title": "Bag 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/0d60f8dd-5bab-4361-8b34-630dcf06bbd2",
+      "confidence": 0.5093793869018555
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (1).jpg",
+      "title": "Bag 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/aa127016-8d0f-410a-b46b-0ae5d607e3db",
+      "confidence": 0.5093793869018555
+    },
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (19).jpg",
+      "title": "Outer 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/6dbc857e-ee6d-4ed7-8c0d-bee5d347ad79",
+      "confidence": 0.44887715578079224
+    },
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (18).jpg",
+      "title": "Outer 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/afc61f07-c61d-4639-9bf9-f73cdca1d4d8",
+      "confidence": 0.44887715578079224
+    },
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (20).jpg",
+      "title": "Outer 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/81839300-be3f-444f-a7d6-989404a77533",
+      "confidence": 0.44887715578079224
+    }
+  ],
+  "6.0": [
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (19).jpg",
+      "title": "Outer 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/3f79adc3-e6c9-44d3-afe9-69d29d62d346",
+      "confidence": 0.6271451115608215
+    },
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (18).jpg",
+      "title": "Outer 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/1fab6204-a543-4a2a-8c2c-1ad30542775c",
+      "confidence": 0.6271451115608215
+    },
+    {
+      "object_type": "outer",
+      "image_url": "data/image_db/ (20).jpg",
+      "title": "Outer 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/aecd3d7a-939a-4cda-a3c2-ca48a8b69ea0",
+      "confidence": 0.6271451115608215
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (25).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/89888b29-d5c1-4eac-b424-bb72e019aaef",
+      "confidence": 0.5277670621871948
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (19).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/a4795d85-56d4-4235-a319-96a05baaf86a",
+      "confidence": 0.5277670621871948
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (4).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8841ae61-3377-407f-98ff-f2469e7a32b8",
+      "confidence": 0.5277670621871948
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (10).jpg",
+      "title": "Bottom 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8e27156f-aaae-464c-9118-305ba25241bb",
+      "confidence": 0.40032902359962463
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (25).jpg",
+      "title": "Bottom 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/9078b1ce-4c19-4916-b99a-02f4501b3c75",
+      "confidence": 0.40032902359962463
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (13).jpg",
+      "title": "Bottom 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/0c7c912c-7fbb-43cb-baf1-f0ceb43c5cb2",
+      "confidence": 0.40032902359962463
+    }
+  ],
+  "18.0": [
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (10).jpg",
+      "title": "Bottom 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8719fcb9-398d-47a2-9da3-4e4e6d4ca258",
+      "confidence": 0.5283368825912476
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (25).jpg",
+      "title": "Bottom 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/5826838e-b4a6-44dd-a493-bc9e2e9f65d0",
+      "confidence": 0.5283368825912476
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "data/image_db/ (13).jpg",
+      "title": "Bottom 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/c8c0bdf3-b661-479c-8c09-eb6523e67fa7",
+      "confidence": 0.5283368825912476
+    }
+  ],
+  "24.0": [
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (13).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/a1950115-5521-48d3-a352-da37099ad1a5",
+      "confidence": 0.6678678393363953
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (12).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/f2cf0ecc-45aa-4f92-b229-faab5b522464",
+      "confidence": 0.6678678393363953
+    },
+    {
+      "object_type": "top",
+      "image_url": "data/image_db/ (9).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/1962d8a1-6354-4640-8bbc-b52edacc881d",
+      "confidence": 0.6678678393363953
+    }
+  ],
+  "30.0": [
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (10).jpg",
+      "title": "Bag 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/bc7b855d-496a-4d32-abb9-aad442b5fcc5",
+      "confidence": 0.607446014881134
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (25).jpg",
+      "title": "Bag 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/e4f7d841-58d2-4946-bf66-e3fca9e432a4",
+      "confidence": 0.607446014881134
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (2).jpg",
+      "title": "Bag 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/06092a37-0f78-4f21-be48-3278493f3b5d",
+      "confidence": 0.607446014881134
+    }
+  ],
+  "42.0": [
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (25).jpg",
+      "title": "Bag 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/f5c0b9e6-b119-4216-9b6b-a52420e6e326",
+      "confidence": 0.40447914600372314
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (10).jpg",
+      "title": "Bag 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/00a54a6e-2fa0-4ec2-afcd-d7c497d1f439",
+      "confidence": 0.40447914600372314
+    },
+    {
+      "object_type": "bag",
+      "image_url": "data/image_db/ (13).jpg",
+      "title": "Bag 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/e58e536c-4de4-4f29-9eff-802e67cdd565",
+      "confidence": 0.40447914600372314
+    }
+  ]
+}

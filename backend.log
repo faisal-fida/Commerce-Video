@@ -1,0 +1,21 @@
+2025-10-01 10:04:38,957 [INFO] faiss.loader: Loading faiss with AVX2 support.
+2025-10-01 10:04:38,972 [INFO] faiss.loader: Successfully loaded faiss with AVX2 support.
+2025-10-01 10:04:39,020 [INFO] video_processing: VideoProcessorManager initialized
+2025-10-01 10:04:39,020 [INFO] video_processing: Scanning data/uploads for existing videos...
+2025-10-01 10:04:39,021 [INFO] video_processing: Generating missing thumbnail for video: 355dd5d9-4c4e-4a65-862d-41c983811104
+2025-10-01 10:04:39,250 [INFO] video_processing: Generated thumbnail: data/uploads/355dd5d9-4c4e-4a65-862d-41c983811104/thumbnail.jpg
+2025-10-01 10:04:39,250 [INFO] video_processing: Generating missing thumbnail for video: e489a3bb-1371-4c24-b1db-4bd7007ba6b6
+2025-10-01 10:04:39,426 [INFO] video_processing: Generated thumbnail: data/uploads/e489a3bb-1371-4c24-b1db-4bd7007ba6b6/thumbnail.jpg
+2025-10-01 10:04:39,427 [INFO] video_processing: Generating missing thumbnail for video: 86f03703-8191-46f5-a07f-4e26045806c7
+2025-10-01 10:04:39,576 [INFO] video_processing: Generated thumbnail: data/uploads/86f03703-8191-46f5-a07f-4e26045806c7/thumbnail.jpg
+2025-10-01 10:04:39,577 [INFO] video_processing: Generating missing thumbnail for video: ba2ad9c0-eceb-435f-863a-219d2d56882b
+2025-10-01 10:04:39,729 [INFO] video_processing: Generated thumbnail: data/uploads/ba2ad9c0-eceb-435f-863a-219d2d56882b/thumbnail.jpg
+2025-10-01 10:04:39,730 [INFO] video_processing: Generating missing thumbnail for video: 81a5c103-4ba0-442b-a123-4dc2a39195ad
+2025-10-01 10:04:39,881 [INFO] video_processing: Generated thumbnail: data/uploads/81a5c103-4ba0-442b-a123-4dc2a39195ad/thumbnail.jpg
+2025-10-01 10:04:39,882 [INFO] video_processing: Generating missing thumbnail for video: 4d040668-cd3f-4972-9da6-460e89800d8e
+2025-10-01 10:04:40,031 [INFO] video_processing: Generated thumbnail: data/uploads/4d040668-cd3f-4972-9da6-460e89800d8e/thumbnail.jpg
+2025-10-01 10:04:40,032 [INFO] video_processing: Loaded 6 existing videos from data/uploads
+INFO:     Started server process [149794]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

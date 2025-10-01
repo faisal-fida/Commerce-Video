@@ -1,0 +1,126 @@
+{
+  "categories": [
+    {
+      "id": "trending",
+      "name": "Trending Now",
+      "videos": [
+        {
+          "id": "video-1",
+          "title": "Fashion Week Highlights",
+          "description": "Latest fashion trends from Paris Fashion Week featuring designer collections and street style.",
+          "thumbnail": "/videos/thumbnails/fashion-week.jpg",
+          "videoUrl": "/videos/fashion-week-highlights.mp4",
+          "duration": "3:24",
+          "views": "2.1M",
+          "rating": 4.8,
+          "category": "Fashion",
+          "tags": ["fashion", "style", "designer", "trends"],
+          "releaseDate": "2024-03-15"
+        },
+        {
+          "id": "video-2",
+          "title": "Tech Product Review",
+          "description": "Comprehensive review of the latest smartphones, laptops, and gadgets with detailed analysis.",
+          "thumbnail": "/videos/thumbnails/tech-review.jpg",
+          "videoUrl": "/videos/tech-product-review.mp4",
+          "duration": "8:15",
+          "views": "1.8M",
+          "rating": 4.6,
+          "category": "Technology",
+          "tags": ["tech", "review", "gadgets", "electronics"],
+          "releaseDate": "2024-03-12"
+        },
+        {
+          "id": "video-3",
+          "title": "Home Decor Trends",
+          "description": "Interior design inspiration and home decoration ideas for modern living spaces.",
+          "thumbnail": "/videos/thumbnails/home-decor.jpg",
+          "videoUrl": "/videos/home-decor-trends.mp4",
+          "duration": "5:42",
+          "views": "956K",
+          "rating": 4.7,
+          "category": "Lifestyle",
+          "tags": ["home", "decor", "design", "interior"],
+          "releaseDate": "2024-03-10"
+        }
+      ]
+    },
+    {
+      "id": "fashion",
+      "name": "Fashion & Style",
+      "videos": [
+        {
+          "id": "video-4",
+          "title": "Summer Collection 2024",
+          "description": "Explore the hottest summer fashion trends and must-have pieces for the season.",
+          "thumbnail": "/videos/thumbnails/summer-collection.jpg",
+          "videoUrl": "/videos/summer-collection-2024.mp4",
+          "duration": "4:18",
+          "views": "743K",
+          "rating": 4.5,
+          "category": "Fashion",
+          "tags": ["summer", "fashion", "collection", "trends"],
+          "releaseDate": "2024-03-08"
+        },
+        {
+          "id": "video-5",
+          "title": "Styling Tips & Tricks",
+          "description": "Professional styling advice and wardrobe essentials for every occasion.",
+          "thumbnail": "/videos/thumbnails/styling-tips.jpg",
+          "videoUrl": "/videos/styling-tips-tricks.mp4",
+          "duration": "6:33",
+          "views": "1.2M",
+          "rating": 4.9,
+          "category": "Fashion",
+          "tags": ["styling", "wardrobe", "tips", "fashion"],
+          "releaseDate": "2024-03-05"
+        }
+      ]
+    },
+    {
+      "id": "lifestyle",
+      "name": "Lifestyle",
+      "videos": [
+        {
+          "id": "video-6",
+          "title": "Wellness & Self-Care",
+          "description": "Daily wellness routines and self-care practices for a balanced lifestyle.",
+          "thumbnail": "/videos/thumbnails/wellness.jpg",
+          "videoUrl": "/videos/wellness-self-care.mp4",
+          "duration": "7:21",
+          "views": "892K",
+          "rating": 4.8,
+          "category": "Lifestyle",
+          "tags": ["wellness", "self-care", "health", "lifestyle"],
+          "releaseDate": "2024-03-03"
+        },
+        {
+          "id": "video-7",
+          "title": "Fitness Journey",
+          "description": "Workout routines and fitness equipment reviews for home and gym training.",
+          "thumbnail": "/videos/thumbnails/fitness.jpg",
+          "videoUrl": "/videos/fitness-journey.mp4",
+          "duration": "9:47",
+          "views": "1.5M",
+          "rating": 4.7,
+          "category": "Lifestyle",
+          "tags": ["fitness", "workout", "health", "exercise"],
+          "releaseDate": "2024-03-01"
+        }
+      ]
+    }
+  ],
+  "featured": {
+    "id": "video-featured",
+    "title": "Exclusive: Behind the Scenes",
+    "description": "Go behind the scenes of our latest video production and discover the creative process.",
+    "thumbnail": "/videos/thumbnails/behind-scenes.jpg",
+    "videoUrl": "/videos/behind-the-scenes.mp4",
+    "duration": "12:34",
+    "views": "3.2M",
+    "rating": 4.9,
+    "category": "Exclusive",
+    "tags": ["exclusive", "behind-scenes", "production", "creative"],
+    "releaseDate": "2024-03-18"
+  }
+}

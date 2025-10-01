@@ -30,7 +30,7 @@ class ModelConfig:
 class VideoProcessingConfig:
     """Configuration for video processing parameters."""
 
-    interval_seconds: int = 6
+    interval_seconds: int = 5
     create_frame_folders: bool = True  # New configuration option
 
 
