@@ -1,0 +1,10 @@
+transformers
+opencv-python
+opencv-python-headless
+timm
+sentence-transformers
+faiss-cpu
+fastapi
+pydantic
+uvicorn
+python-multipart

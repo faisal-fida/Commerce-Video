@@ -1,0 +1,291 @@
+{
+  "5.0": [
+    {
+      "object_type": "outer",
+      "image_url": "/static_images/ (19).jpg",
+      "title": "Outer 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/d28058c4-7bb4-44b1-9d86-697faa0e8e01"
+    },
+    {
+      "object_type": "outer",
+      "image_url": "/static_images/ (18).jpg",
+      "title": "Outer 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/287b380e-a5c7-401b-9c37-7c00ce766dfc"
+    },
+    {
+      "object_type": "outer",
+      "image_url": "/static_images/ (20).jpg",
+      "title": "Outer 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/0088d684-18ac-4988-8e44-acd8882ca476"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (4).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/ee4cb914-0488-4eb5-b1e4-bbe0eef54757"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (19).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/3584795b-1f3b-4cff-89bd-13d890360b8b"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/40c42886-4dad-475e-ba6f-2482e9a33082"
+    }
+  ],
+  "10.0": [
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/c5f31c45-91ca-4bae-bc25-38c9493dbeaf"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (20).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/a5af0ba9-b7b3-4778-9709-48e23c0b1f68"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (21).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/3509c5dc-2827-4e40-b00e-e3a43e83bb61"
+    }
+  ],
+  "15.0": [
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (13).jpg",
+      "title": "Bottom 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/f6aa0a80-68f4-4be2-999a-4661d9225146"
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Bottom 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/3a039109-796a-4776-b26d-7b5e52212702"
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Bottom 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/9f07bab8-239b-4760-b350-d13f64654c29"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8aea41dc-6bb4-40ca-9032-239654fb08b8"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (12).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/aa2850bc-a53a-4f36-a242-4d14bffb9208"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (24).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/2622b345-d025-424b-8658-72338fe5cf0a"
+    }
+  ],
+  "20.0": [
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (12).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/e15adf39-efc5-4966-9d7d-a419b9537938"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/deb5637e-0e5a-40f0-954c-4d6c4ea032dc"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/27dc3bc7-0a30-4d48-9f16-9ab835fef584"
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Bottom 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/af1615a3-b93e-4249-bca1-a5a2f75880cf"
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Bottom 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/8f628738-a8ae-4221-b213-0feb8d09d49d"
+    },
+    {
+      "object_type": "bottom",
+      "image_url": "/static_images/ (11).jpg",
+      "title": "Bottom 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/4564a695-3bd6-4c99-8f55-54ef40e0326b"
+    }
+  ],
+  "25.0": [
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (24).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/494238e3-50c4-4043-b439-aa9aa2aa8dd6"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (20).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/40c2a745-0377-463a-af47-460ab5f256e2"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/07982e0a-403e-49ca-820c-b91949f30783"
+    }
+  ],
+  "30.0": [
+    {
+      "object_type": "bag",
+      "image_url": "/static_images/ (10).jpg",
+      "title": "Bag 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8459f1e7-ffb2-4fd0-822c-87a494a04f27"
+    },
+    {
+      "object_type": "bag",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Bag 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/fc811cfd-3090-453e-9226-5728cee9ca12"
+    },
+    {
+      "object_type": "bag",
+      "image_url": "/static_images/ (2).jpg",
+      "title": "Bag 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/e20b29f5-9360-4787-8c7e-fa99ca3c6c8e"
+    }
+  ],
+  "35.0": [
+    {
+      "object_type": "dress",
+      "image_url": "/static_images/ (12).jpg",
+      "title": "Dress 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/827be1ec-bffe-4be6-b7ad-de1c7b728e02"
+    },
+    {
+      "object_type": "dress",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Dress 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/f5ea1c0a-57ad-4fd5-8ed4-c08eed2cce47"
+    },
+    {
+      "object_type": "dress",
+      "image_url": "/static_images/ (24).jpg",
+      "title": "Dress 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/e9f18183-1381-4ce8-ac4a-a078be6f9390"
+    }
+  ],
+  "40.0": [
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Hat 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/17bfb627-b614-41e8-9fa4-94efa848448f"
+    },
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (24).jpg",
+      "title": "Hat 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/bf976fd2-c02e-4b69-821a-67c01cf4d340"
+    },
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (11).jpg",
+      "title": "Hat 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/0a9191fb-90d4-421a-b3c1-b0029122b800"
+    },
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (11).jpg",
+      "title": "Hat 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/5fb77b8d-3dad-44f4-9d55-903a379b2c33"
+    },
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (24).jpg",
+      "title": "Hat 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/e37e22a7-7377-43de-844f-0bd9a54c768e"
+    },
+    {
+      "object_type": "hat",
+      "image_url": "/static_images/ (12).jpg",
+      "title": "Hat 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/57d75eb0-86a9-4aeb-9411-35f7a65435a3"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (25).jpg",
+      "title": "Top 1",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/d51be118-7c9b-43a0-b9d5-797078aeb04f"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (13).jpg",
+      "title": "Top 2",
+      "stock": "Out of Stock",
+      "direct_url": "https://example.com/product/95c36e81-bdfe-4e69-8fdf-6a6267a36e28"
+    },
+    {
+      "object_type": "top",
+      "image_url": "/static_images/ (9).jpg",
+      "title": "Top 3",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/5684ff11-cbc5-4dac-a81f-caf113f5f45c"
+    }
+  ]
+}
