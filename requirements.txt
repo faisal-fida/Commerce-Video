@@ -11,3 +11,4 @@ uvicorn
 python-multipart
 Pillow
 numpy
+inference-sdk

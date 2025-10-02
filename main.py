@@ -6,7 +6,6 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from typing import List, Optional
-from pathlib import Path
 import uuid
 import os
 
@@ -357,46 +356,6 @@ async def get_bundles(video_id: str, time: Optional[float] = None):
         logger.error(f"Error creating bundles: {e}")
         raise HTTPException(
             status_code=500, detail=f"Failed to create bundles: {str(e)}"
-        )
-
-
-@app.post("/api/regenerate-thumbnails")
-async def regenerate_thumbnails():
-    """
-    Regenerate thumbnails for all videos that are missing them.
-
-    Returns:
-        dict: Summary of thumbnail generation
-    """
-    try:
-        videos = processor_manager.get_all_videos()
-        generated_count = 0
-        failed_count = 0
-
-        for video in videos:
-            video_dir = Path(f"data/uploads/{video.id}")
-            thumbnail_path = video_dir / "thumbnail.jpg"
-
-            if not thumbnail_path.exists():
-                try:
-                    logger.info(f"Regenerating thumbnail for video: {video.id}")
-                    processor_manager._generate_thumbnail(video.file_path, video.id)
-                    generated_count += 1
-                except Exception as e:
-                    logger.error(f"Failed to generate thumbnail for {video.id}: {e}")
-                    failed_count += 1
-
-        return {
-            "status": "completed",
-            "generated": generated_count,
-            "failed": failed_count,
-            "total_videos": len(videos),
-        }
-
-    except Exception as e:
-        logger.error(f"Error regenerating thumbnails: {e}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to regenerate thumbnails: {str(e)}"
         )
 
 

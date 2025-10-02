@@ -9,9 +9,10 @@ from typing import Dict, List, Optional
 import cv2
 from PIL import Image
 
-from config import VIDEO_CONFIG, logger
-from detector import ObjectDetector
-from image_similarity_search.similarity_search import ImageSimilaritySearch
+from config import VIDEO_CONFIG, SIMILARITY_SEARCH_CONFIG, logger
+from object_detectors import ClothingDetector
+from object_detectors import JewelryDetector
+from image_similarity_search import ImageSimilaritySearch
 from models import VideoInfo, ProductResult
 
 
@@ -24,26 +25,49 @@ class VideoProcessorManager:
     def __init__(self):
         """Initialize the video processor manager."""
         self.videos: Dict[str, VideoInfo] = {}
-        self.detector: Optional[ObjectDetector] = None
-        self.similarity_search: Optional[ImageSimilaritySearch] = None
-        logger.info("VideoProcessorManager initialized")
+        self.detector: Optional[ClothingDetector] = None
+        self.jewelry_detector: Optional[JewelryDetector] = None
+
+        # Separate similarity search instances for clothing and jewelry
+        self.clothing_similarity_search: Optional[ImageSimilaritySearch] = None
+        self.jewelry_similarity_search: Optional[ImageSimilaritySearch] = None
+
+        logger.info("VideoProcessorManager initialized with separate databases")
 
         # Load existing videos from data/uploads directory
         self._load_existing_videos()
 
-    def _get_detector(self) -> ObjectDetector:
+    def _get_detector(self) -> ClothingDetector:
         """Lazy load the object detector."""
         if self.detector is None:
             logger.info("Loading object detector...")
-            self.detector = ObjectDetector()
+            self.detector = ClothingDetector()
         return self.detector
 
-    def _get_similarity_search(self) -> ImageSimilaritySearch:
-        """Lazy load the similarity search engine."""
-        if self.similarity_search is None:
-            logger.info("Loading similarity search engine...")
-            self.similarity_search = ImageSimilaritySearch(db_path="data/similarity_db")
-        return self.similarity_search
+    def _get_jewelry_detector(self) -> JewelryDetector:
+        """Lazy load the jewelry detector."""
+        if self.jewelry_detector is None:
+            logger.info("Loading jewelry detector...")
+            self.jewelry_detector = JewelryDetector()
+        return self.jewelry_detector
+
+    def _get_clothing_similarity_search(self) -> ImageSimilaritySearch:
+        """Lazy load the clothing similarity search engine."""
+        if self.clothing_similarity_search is None:
+            logger.info("Loading clothing similarity search engine...")
+            self.clothing_similarity_search = ImageSimilaritySearch(
+                db_path=SIMILARITY_SEARCH_CONFIG.clothing_db_path
+            )
+        return self.clothing_similarity_search
+
+    def _get_jewelry_similarity_search(self) -> ImageSimilaritySearch:
+        """Lazy load the jewelry similarity search engine."""
+        if self.jewelry_similarity_search is None:
+            logger.info("Loading jewelry similarity search engine...")
+            self.jewelry_similarity_search = ImageSimilaritySearch(
+                db_path=SIMILARITY_SEARCH_CONFIG.jewelry_db_path
+            )
+        return self.jewelry_similarity_search
 
     def _load_existing_videos(self) -> None:
         """
@@ -237,6 +261,7 @@ class VideoProcessorManager:
         frames_data = {}
         frame_count = 0
         detector = self._get_detector()
+        jewelry_detector = self._get_jewelry_detector()
 
         try:
             while True:
@@ -257,8 +282,10 @@ class VideoProcessorManager:
                     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     pil_image = Image.fromarray(frame_rgb)
 
-                    # Detect objects
-                    detections = self._detect_objects_in_frame(pil_image, detector)
+                    # Detect objects (both clothing and jewelry)
+                    detections = self._detect_objects_in_frame(
+                        pil_image, detector, jewelry_detector
+                    )
 
                     # Find similar products for each detection
                     products = self._find_similar_products(
@@ -277,23 +304,30 @@ class VideoProcessorManager:
         return frames_data
 
     def _detect_objects_in_frame(
-        self, image: Image.Image, detector: ObjectDetector
+        self,
+        image: Image.Image,
+        detector: ClothingDetector,
+        jewelry_detector: JewelryDetector,
     ) -> List[Dict]:
         """
-        Detect objects in a single frame.
+        Detect objects in a single frame using both clothing and jewelry detectors.
 
         Args:
             image: PIL Image object
-            detector: ObjectDetector instance
+            detector: ClothingDetector instance for clothing
+            jewelry_detector: JewelryDetector instance for jewelry
 
         Returns:
-            List of detection dictionaries
+            List of detection dictionaries from both detectors
         """
-        results = detector.detect_objects(image)
-
         detections = []
+
+        # Detect clothing items
+        clothing_results = detector.detect_objects(image)
         for score, label, box in zip(
-            results["scores"], results["labels"], results["boxes"]
+            clothing_results["scores"],
+            clothing_results["labels"],
+            clothing_results["boxes"],
         ):
             label_name = detector.get_label_name(label.item())
             confidence = score.item()
@@ -303,10 +337,36 @@ class VideoProcessorManager:
                     "label": label_name,
                     "confidence": confidence,
                     "box": box.tolist(),
+                    "category": "clothing",
                 }
                 detections.append(detection)
-                logger.debug(f"Detected {label_name} with confidence {confidence:.2f}")
+                logger.debug(
+                    f"Detected clothing: {label_name} with confidence {confidence:.2f}"
+                )
 
+        # Detect jewelry items
+        jewelry_results = jewelry_detector.detect_objects(image)
+        for score, label, box in zip(
+            jewelry_results["scores"],
+            jewelry_results["labels"],
+            jewelry_results["boxes"],
+        ):
+            label_name = jewelry_detector.get_label_name(label)
+            confidence = score
+
+            if confidence >= jewelry_detector.confidence_threshold:
+                detection = {
+                    "label": label_name,
+                    "confidence": confidence,
+                    "box": box,
+                    "category": "jewelry",
+                }
+                detections.append(detection)
+                logger.debug(
+                    f"Detected jewelry: {label_name} with confidence {confidence:.2f}"
+                )
+
+        logger.info(f"Total detections: {len(detections)} (clothing + jewelry)")
         return detections
 
     def _find_similar_products(
@@ -318,6 +378,7 @@ class VideoProcessorManager:
     ) -> List[Dict]:
         """
         Find similar products for detected objects.
+        Routes searches to appropriate database based on detection category.
         Returns only unique products (deduplicated by image_url),
         keeping the most confident match for each unique product.
 
@@ -330,7 +391,9 @@ class VideoProcessorManager:
         Returns:
             List of unique product results
         """
-        similarity_search = self._get_similarity_search()
+        # Get both similarity search instances
+        clothing_search = self._get_clothing_similarity_search()
+        jewelry_search = self._get_jewelry_similarity_search()
 
         # Create crops directory
         crops_dir = frames_dir / "crops"
@@ -347,12 +410,23 @@ class VideoProcessorManager:
                 x1, y1, x2, y2 = [int(coord) for coord in box]
                 cropped = image.crop((x1, y1, x2, y2))
 
-                # Save cropped image
-                crop_path = crops_dir / f"crop_{timestamp:.1f}s_{idx}.jpg"
+                # Save cropped image with category prefix
+                category = detection.get("category", "unknown")
+                crop_path = crops_dir / f"crop_{category}_{timestamp:.1f}s_{idx}.jpg"
                 cropped.save(crop_path)
 
-                # Search for most similar product (top 1 only)
-                similar_images = similarity_search.search(str(crop_path), top_k=1)
+                # Route to appropriate similarity search based on category
+                if category == "clothing":
+                    similar_images = clothing_search.search(str(crop_path), top_k=1)
+                    logger.debug(f"Searching clothing database for detection {idx}")
+                elif category == "jewelry":
+                    similar_images = jewelry_search.search(str(crop_path), top_k=1)
+                    logger.debug(f"Searching jewelry database for detection {idx}")
+                else:
+                    logger.warning(
+                        f"Unknown category '{category}' for detection {idx}, skipping"
+                    )
+                    continue
 
                 # Create product result for the most similar match
                 if similar_images:
@@ -367,6 +441,7 @@ class VideoProcessorManager:
                         ):
                             unique_products[image_path] = {
                                 "object_type": detection["label"],
+                                "category": detection.get("category", "unknown"),
                                 "image_url": image_path,
                                 "title": f"{detection['label'].title()}",
                                 "stock": "In Stock",
@@ -377,6 +452,7 @@ class VideoProcessorManager:
                         # Add new unique product
                         unique_products[image_path] = {
                             "object_type": detection["label"],
+                            "category": detection.get("category", "unknown"),
                             "image_url": image_path,
                             "title": f"{detection['label'].title()}",
                             "stock": "In Stock",
@@ -505,6 +581,7 @@ class VideoProcessorManager:
             products = [
                 ProductResult(
                     object_type=p["object_type"],
+                    category=p.get("category"),
                     image_url=p["image_url"],
                     title=p["title"],
                     stock=p["stock"],

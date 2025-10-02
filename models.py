@@ -25,7 +25,8 @@ class ProductResult(BaseModel):
     Model representing a product result from object detection.
     """
 
-    object_type: str  # e.g., "shirt", "pants", "shoes"
+    object_type: str  # e.g., "shirt", "pants", "necklace", "ring"
+    category: Optional[str] = None  # "clothing" or "jewelry"
     image_url: str  # URL to the similar product image (real image)
     title: str  # Product title (dummy data)
     stock: str  # Stock status (dummy data: "In Stock" or "Out of Stock")
