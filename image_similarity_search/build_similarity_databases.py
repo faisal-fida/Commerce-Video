@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 from config import SIMILARITY_SEARCH_CONFIG, logger
-from image_similarity_search.similarity_search import ImageSimilaritySearch
+from .similarity_search import ImageSimilaritySearch
 
 
 def build_clothing_database() -> bool:

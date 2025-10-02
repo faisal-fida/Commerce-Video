@@ -16,7 +16,8 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const MAX_RETRIES = 1;
 const RETRY_DELAY = 500; // ms
-const REQUEST_TIMEOUT = 5000; // 5 seconds
+const REQUEST_TIMEOUT = 30000; // 30 seconds for normal requests
+const UPLOAD_TIMEOUT = 300000; // 5 minutes for video uploads
 
 /**
  * Custom error class for API errors
@@ -44,13 +45,15 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
-  retries = MAX_RETRIES
+  retries = MAX_RETRIES,
+  timeout = REQUEST_TIMEOUT
 ): Promise<Response> {
-  try {
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  // Create a fresh abort controller for this attempt (not reused across retries)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
+  try {
+    const startTime = Date.now();
     const response = await fetch(url, {
       ...options,
       signal: controller.signal,
@@ -60,6 +63,8 @@ async function fetchWithRetry(
     });
 
     clearTimeout(timeoutId);
+    const duration = Date.now() - startTime;
+    console.log(`✅ Request completed in ${duration}ms: ${url}`);
 
     // If response is ok or client error (4xx), return immediately
     if (response.ok || (response.status >= 400 && response.status < 500)) {
@@ -72,11 +77,13 @@ async function fetchWithRetry(
         `Request failed with ${response.status}, retrying... (${retries} left)`
       );
       await delay(RETRY_DELAY);
-      return fetchWithRetry(url, options, retries - 1);
+      return fetchWithRetry(url, options, retries - 1, timeout);
     }
 
     return response;
   } catch (error) {
+    clearTimeout(timeoutId);
+
     // Network errors or timeout - retry
     if (retries > 0 && error instanceof Error) {
       const isTimeout = error.name === "AbortError";
@@ -86,7 +93,7 @@ async function fetchWithRetry(
         }, retrying... (${retries} left)`
       );
       await delay(RETRY_DELAY);
-      return fetchWithRetry(url, options, retries - 1);
+      return fetchWithRetry(url, options, retries - 1, timeout);
     }
     throw error;
   }
@@ -138,10 +145,15 @@ class APIClient {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetchWithRetry(`${this.baseURL}/api/upload`, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetchWithRetry(
+      `${this.baseURL}/api/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+      MAX_RETRIES,
+      UPLOAD_TIMEOUT
+    );
 
     return handleResponse<VideoUploadResponse>(response);
   }

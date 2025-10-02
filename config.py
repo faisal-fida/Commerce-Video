@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 # Logger Configuration
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.INFO,  # INFO level - use DEBUG only when needed for troubleshooting
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 

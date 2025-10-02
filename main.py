@@ -180,13 +180,22 @@ async def get_bundles(video_id: str, time: Optional[float] = None):
         if not products:
             return []
 
-        # Group products by type
+        # Group products by type and category
         product_groups = {}
+        clothing_items = []
+        jewelry_items = []
+
         for product in products:
             obj_type = product.object_type
             if obj_type not in product_groups:
                 product_groups[obj_type] = []
             product_groups[obj_type].append(product)
+
+            # Separate by category for specialized bundling
+            if product.category == "clothing":
+                clothing_items.append(product)
+            elif product.category == "jewelry":
+                jewelry_items.append(product)
 
         bundles = []
 
@@ -309,7 +318,101 @@ async def get_bundles(video_id: str, time: Optional[float] = None):
                         bundles.append(bundle)
                         break
 
-        # Strategy 4: Fallback - create bundles from any available products
+        # Strategy 4: Create jewelry sets (necklace + earrings, ring + bracelet, etc.)
+        if len(jewelry_items) >= 2 and len(bundles) < 3:
+            # Group jewelry by type
+            jewelry_groups = {}
+            for item in jewelry_items:
+                if item.object_type not in jewelry_groups:
+                    jewelry_groups[item.object_type] = []
+                jewelry_groups[item.object_type].append(item)
+
+            # Create complementary jewelry sets
+            jewelry_types = list(jewelry_groups.keys())
+            for i in range(min(2, len(jewelry_types) - 1)):
+                if len(bundles) >= 3:
+                    break
+                type1 = jewelry_types[i]
+                type2 = jewelry_types[i + 1]
+
+                item1 = jewelry_groups[type1][0]
+                item2 = jewelry_groups[type2][0]
+
+                bundle_products = [
+                    {
+                        "object_type": item1.object_type,
+                        "image_url": item1.image_url,
+                        "title": item1.title,
+                        "stock": item1.stock,
+                        "direct_url": item1.direct_url,
+                        "category": "jewelry",
+                    },
+                    {
+                        "object_type": item2.object_type,
+                        "image_url": item2.image_url,
+                        "title": item2.title,
+                        "stock": item2.stock,
+                        "direct_url": item2.direct_url,
+                        "category": "jewelry",
+                    },
+                ]
+
+                bundle = {
+                    "id": f"bundle-jewelry-{video_id}-{time}-{i}",
+                    "name": f"Jewelry Set {i + 1}",
+                    "description": f"Elegant {item1.object_type} and {item2.object_type} set",
+                    "total_price": 199.98,
+                    "discount_price": 149.98,
+                    "category": "jewelry",
+                    "image_url": item1.image_url,
+                    "product_ids": [item1.title, item2.title],
+                    "products": bundle_products,
+                    "similarity_score": 0.88,
+                }
+                bundles.append(bundle)
+
+        # Strategy 5: Create complete look bundles (clothing + jewelry)
+        if len(clothing_items) >= 1 and len(jewelry_items) >= 1 and len(bundles) < 3:
+            for i in range(min(2, len(clothing_items))):
+                if len(bundles) >= 3:
+                    break
+                clothing_item = clothing_items[i]
+                jewelry_item = jewelry_items[min(i, len(jewelry_items) - 1)]
+
+                bundle_products = [
+                    {
+                        "object_type": clothing_item.object_type,
+                        "image_url": clothing_item.image_url,
+                        "title": clothing_item.title,
+                        "stock": clothing_item.stock,
+                        "direct_url": clothing_item.direct_url,
+                        "category": "clothing",
+                    },
+                    {
+                        "object_type": jewelry_item.object_type,
+                        "image_url": jewelry_item.image_url,
+                        "title": jewelry_item.title,
+                        "stock": jewelry_item.stock,
+                        "direct_url": jewelry_item.direct_url,
+                        "category": "jewelry",
+                    },
+                ]
+
+                bundle = {
+                    "id": f"bundle-complete-{video_id}-{time}-{i}",
+                    "name": "Complete Look",
+                    "description": f"Stunning {clothing_item.object_type} with elegant {jewelry_item.object_type}",
+                    "total_price": 179.98,
+                    "discount_price": 139.98,
+                    "category": "complete",
+                    "image_url": clothing_item.image_url,
+                    "product_ids": [clothing_item.title, jewelry_item.title],
+                    "products": bundle_products,
+                    "similarity_score": 0.82,
+                }
+                bundles.append(bundle)
+
+        # Strategy 6: Fallback - create bundles from any available products
         if len(bundles) == 0 and len(products) >= 2:
             # Group any 2-3 products together as a "Style Bundle"
             bundle_size = min(3, len(products))

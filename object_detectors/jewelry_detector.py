@@ -7,7 +7,7 @@ from PIL import Image
 from typing import Dict, Any
 from inference_sdk import InferenceHTTPClient
 from config import JEWELRY_CONFIG, logger
-import io
+import numpy as np
 
 
 class JewelryDetector:
@@ -56,23 +56,28 @@ class JewelryDetector:
                   with ClothingDetector (for consistency)
         """
         try:
-            # Save image to bytes buffer
-            img_buffer = io.BytesIO()
-            image.save(img_buffer, format="JPEG")
-            img_buffer.seek(0)
+            # Convert PIL Image to numpy array (Roboflow SDK accepts numpy arrays, not BytesIO)
+            image_np = np.array(image)
 
             # Perform inference
-            result = self.client.infer(img_buffer, model_id=self.model_id)
+            logger.debug(
+                f"Calling Roboflow API for jewelry detection (model: {self.model_id})"
+            )
+            result = self.client.infer(image_np, model_id=self.model_id)
+
+            # Log raw API response for debugging
+            logger.debug(f"Roboflow API response: {result}")
 
             # Convert Roboflow format to our standard format (matching ClothingDetector)
             predictions = result.get("predictions", [])
+            logger.info(f"Jewelry detector found {len(predictions)} raw predictions")
 
             # Build lists of boxes, labels, and scores
             boxes = []
             labels = []
             scores = []
 
-            for pred in predictions:
+            for i, pred in enumerate(predictions):
                 # Convert center-based box to corner-based box [x1, y1, x2, y2]
                 x_center = pred["x"]
                 y_center = pred["y"]
@@ -88,10 +93,26 @@ class JewelryDetector:
                 labels.append(pred["class"])
                 scores.append(pred["confidence"])
 
+                logger.debug(
+                    f"  Prediction {i + 1}: {pred['class']} (confidence: {pred['confidence']:.3f})"
+                )
+
+            # Log summary
+            above_threshold = sum(1 for s in scores if s >= self.confidence_threshold)
+            logger.info(
+                f"Jewelry detection: {above_threshold}/{len(predictions)} predictions above threshold {self.confidence_threshold}"
+            )
+
             return {"boxes": boxes, "labels": labels, "scores": scores}
 
         except Exception as e:
-            logger.error(f"Error during jewelry detection: {e}")
+            logger.error(f"Error during jewelry detection: {e}", exc_info=True)
+            logger.error(
+                f"Jewelry detector config - API URL: {self.api_url}, Model: {self.model_id}"
+            )
+            logger.error(
+                "This may be due to: (1) Invalid API key, (2) Network issues, (3) Roboflow service down"
+            )
             return {"boxes": [], "labels": [], "scores": []}
 
     def get_label_name(self, label: Any) -> str:

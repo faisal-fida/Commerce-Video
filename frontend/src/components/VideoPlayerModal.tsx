@@ -37,6 +37,8 @@ export function VideoPlayerModal({
     const [productsError, setProductsError] = useState<string | null>(null)
     const lastLoadedTimeRef = useRef<number>(-1)
     const isVideoPlayingRef = useRef<boolean>(true) // Assume playing initially (autoplay)
+    const loadingTimeRef = useRef<number | null>(null) // Track currently loading timestamp
+    const abortControllerRef = useRef<AbortController | null>(null) // Track abort controller for cleanup
 
     const cartItemsCount = cartItems.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -86,13 +88,16 @@ export function VideoPlayerModal({
     const mapProductResults = (results: ProductResult[]): Product[] => {
         return results.map((result, index) => ({
             ...result,
-            id: `${result.object_type}-${index}`,
+            id: `${result.category || 'product'}-${result.object_type}-${index}`,
             name: result.title,
-            price: 29.99 + Math.random() * 50, // Mock price
+            price: result.category === 'jewelry'
+                ? 49.99 + Math.random() * 150 // Jewelry typically more expensive
+                : 29.99 + Math.random() * 70,  // Clothing price range
             image: api.getProductImageUrl(result.image_url),
-            category: result.object_type,
-            confidence: 0.8 + Math.random() * 0.2,
+            category: result.category || result.object_type, // Use backend category (clothing/jewelry) or fallback to object_type
+            confidence: result.confidence || (0.8 + Math.random() * 0.2),
             timestamp: currentTime,
+            object_type: result.object_type, // Keep original object type
         }))
     }
 
@@ -116,7 +121,22 @@ export function VideoPlayerModal({
             return
         }
 
+        // Skip if we're already loading this time
+        if (loadingTimeRef.current === roundedTime) {
+            console.log(`Already loading products for time ${roundedTime}s, skipping duplicate request`)
+            return
+        }
+
+        // Cancel any pending requests
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort()
+        }
+
+        // Create new abort controller for this request
+        abortControllerRef.current = new AbortController()
+
         lastLoadedTimeRef.current = roundedTime
+        loadingTimeRef.current = roundedTime
         setLoadingProducts(true)
         setProductsError(null)
 
@@ -124,14 +144,26 @@ export function VideoPlayerModal({
         console.log(`🔄 Starting to load products for time ${roundedTime}s...`)
 
         try {
-            // Fetch products and bundles in parallel
-            const [productsData, bundlesData] = await Promise.all([
+            // Fetch products and bundles in parallel using allSettled to prevent one failure from aborting the other
+            const results = await Promise.allSettled([
                 api.getResults(video.id, roundedTime),
                 api.getBundles(video.id, roundedTime)
             ])
 
             const endTime = performance.now()
             const duration = (endTime - startTime).toFixed(0)
+
+            // Extract successful results
+            const productsData = results[0].status === 'fulfilled' ? results[0].value : []
+            const bundlesData = results[1].status === 'fulfilled' ? results[1].value : []
+
+            // Log any errors but don't fail the entire load
+            if (results[0].status === 'rejected') {
+                console.warn(`Failed to load products: ${results[0].reason}`)
+            }
+            if (results[1].status === 'rejected') {
+                console.warn(`Failed to load bundles: ${results[1].reason}`)
+            }
 
             setProducts(mapProductResults(productsData))
             setBundles(bundlesData)
@@ -146,6 +178,8 @@ export function VideoPlayerModal({
             setBundles([])
         } finally {
             setLoadingProducts(false)
+            loadingTimeRef.current = null
+            abortControllerRef.current = null
         }
     }
 
@@ -256,6 +290,11 @@ export function VideoPlayerModal({
         return () => {
             // Remove modal-open class when modal closes
             document.body.classList.remove('modal-open')
+
+            // Cancel any pending requests on unmount
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort()
+            }
         }
     }, [])
 

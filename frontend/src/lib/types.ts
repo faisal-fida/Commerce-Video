@@ -32,10 +32,12 @@ export interface Video extends VideoInfo {
 // Backend ProductResult model
 export interface ProductResult {
   object_type: string;
+  category?: string; // "clothing" or "jewelry"
   image_url: string;
   title: string;
   stock: string;
   direct_url: string;
+  confidence?: number;
 }
 
 // Extended Product interface for frontend

@@ -24,9 +24,11 @@ export function ProductsTab({ products, currentTime, onAddToCart, isLoading = fa
 
     const categoryColors: Record<string, string> = {
         all: 'bg-white/10 text-white border-white/20',
+        clothing: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+        jewelry: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
         fashion: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
         'home-decor': 'bg-orange-500/20 text-orange-300 border-orange-500/30',
-        electronics: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+        electronics: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
         beauty: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     }
 
@@ -37,6 +39,17 @@ export function ProductsTab({ products, currentTime, onAddToCart, isLoading = fa
     const formatCategory = (category: string) => {
         if (!category) return 'Item'
         return category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())
+    }
+
+    const getCategoryIcon = (category: string) => {
+        switch (category) {
+            case 'clothing':
+                return '👕'
+            case 'jewelry':
+                return '💎'
+            default:
+                return ''
+        }
     }
 
     return (
@@ -65,13 +78,16 @@ export function ProductsTab({ products, currentTime, onAddToCart, isLoading = fa
                         {availableCategories.map((category) => (
                             <button
                                 key={category}
-                                className={`whitespace-nowrap px-3 py-1 text-sm rounded border transition-all duration-300 ${activeCategory === category
+                                className={`whitespace-nowrap px-3 py-1.5 text-sm rounded-lg border transition-all duration-300 ${activeCategory === category
                                     ? getCategoryColor(category)
                                     : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10'
                                     }`}
                                 onClick={() => setActiveCategory(category || '')}
                             >
-                                {formatCategory(category || '')}
+                                <span className="flex items-center gap-1.5">
+                                    {getCategoryIcon(category || '')}
+                                    {formatCategory(category || '')}
+                                </span>
                             </button>
                         ))}
                     </div>
@@ -169,11 +185,21 @@ export function ProductsTab({ products, currentTime, onAddToCart, isLoading = fa
 
                                         {/* Product Info */}
                                         <div className="space-y-1">
-                                            <span
-                                                className={`inline-block text-xs px-1 py-0.5 rounded border ${getCategoryColor(product.category)}`}
-                                            >
-                                                {formatCategory(product.category).substring(0, 3)}
-                                            </span>
+                                            <div className="flex items-center justify-between">
+                                                <span
+                                                    className={`inline-flex items-center gap-0.5 text-xs px-1.5 py-0.5 rounded border ${getCategoryColor(product.category)}`}
+                                                >
+                                                    {getCategoryIcon(product.category || '')}
+                                                    <span className="font-medium">
+                                                        {product.category === 'clothing' || product.category === 'jewelry'
+                                                            ? formatCategory(product.category)
+                                                            : formatCategory(product.object_type || product.category || '')}
+                                                    </span>
+                                                </span>
+                                                {product.stock === 'In Stock' && (
+                                                    <span className="text-green-400 text-xs">●</span>
+                                                )}
+                                            </div>
 
                                             <h3 className="text-white font-medium text-xs leading-tight line-clamp-1">
                                                 {product.name}

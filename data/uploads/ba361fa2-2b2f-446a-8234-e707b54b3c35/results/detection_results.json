@@ -1,0 +1,173 @@
+{
+  "0.0": [
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (24).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/d34eb99b-2901-4282-ac8a-f3e64d0220aa",
+      "confidence": 0.6912885904312134
+    },
+    {
+      "object_type": "bag",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (3).jpg",
+      "title": "Bag",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/1f78fbc4-28c3-4c10-b07c-da15f46e6b33",
+      "confidence": 0.5093793869018555
+    },
+    {
+      "object_type": "outer",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (19).jpg",
+      "title": "Outer",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/f41d234a-27f2-43ba-84ab-e553b9d342e3",
+      "confidence": 0.44887715578079224
+    }
+  ],
+  "5.0": [
+    {
+      "object_type": "outer",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (19).jpg",
+      "title": "Outer",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8930b4ef-ec1c-4b1c-80e6-ef8988128539",
+      "confidence": 0.5332412123680115
+    },
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (4).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/ab964fda-0ebd-4754-ab50-066ff3440d10",
+      "confidence": 0.45370805263519287
+    }
+  ],
+  "10.0": [
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (20).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/2ef9f9da-8784-4d5c-9b26-fae7f494c58e",
+      "confidence": 0.6409924626350403
+    }
+  ],
+  "15.0": [
+    {
+      "object_type": "bottom",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (13).jpg",
+      "title": "Bottom",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/7711423c-2b10-434e-9488-8d7aa9e4f1b4",
+      "confidence": 0.49552711844444275
+    },
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (25).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/8f98f3cf-27e1-406e-86f8-d1f61d70a829",
+      "confidence": 0.43515118956565857
+    }
+  ],
+  "20.0": [
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (12).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/60f28588-a7e3-4663-a602-146b951f3fd1",
+      "confidence": 0.5528449416160583
+    },
+    {
+      "object_type": "bottom",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (25).jpg",
+      "title": "Bottom",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/61610529-7a4f-417b-bb5b-55ea7512e1cb",
+      "confidence": 0.5437648296356201
+    }
+  ],
+  "25.0": [
+    {
+      "object_type": "top",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (24).jpg",
+      "title": "Top",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/80c58dd7-fd4b-4997-a038-1494a3ca79d3",
+      "confidence": 0.4905835688114166
+    }
+  ],
+  "30.0": [
+    {
+      "object_type": "bag",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (25).jpg",
+      "title": "Bag",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/93e9587e-200e-4ab7-94a5-36a75d3b71da",
+      "confidence": 0.607446014881134
+    },
+    {
+      "object_type": "necklace",
+      "category": "jewelry",
+      "image_url": "data/image_db/jewelry/ (2).png",
+      "title": "Necklace",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/9181d4e7-76ff-4510-92c8-53453e3340ab",
+      "confidence": 0.533283531665802
+    }
+  ],
+  "35.0": [
+    {
+      "object_type": "dress",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (12).jpg",
+      "title": "Dress",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/35b93329-24b4-4c84-a483-0828ecc48d94",
+      "confidence": 0.45919740200042725
+    }
+  ],
+  "40.0": [
+    {
+      "object_type": "tiara",
+      "category": "jewelry",
+      "image_url": "data/image_db/jewelry/ (6).png",
+      "title": "Tiara",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/876a318b-232f-409c-8682-1b3e5bcfe0d3",
+      "confidence": 0.648533284664154
+    },
+    {
+      "object_type": "hat",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (25).jpg",
+      "title": "Hat",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/b9d1284e-4ea1-4578-b5b4-7a1afbba07cf",
+      "confidence": 0.6082008481025696
+    },
+    {
+      "object_type": "hat",
+      "category": "clothing",
+      "image_url": "data/image_db/clothing/ (11).jpg",
+      "title": "Hat",
+      "stock": "In Stock",
+      "direct_url": "https://example.com/product/25221904-2272-41ee-aad8-59633fcb7fdb",
+      "confidence": 0.45539018511772156
+    }
+  ]
+}
