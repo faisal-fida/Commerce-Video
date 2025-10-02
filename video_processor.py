@@ -9,9 +9,15 @@ from typing import Dict, List, Optional
 import cv2
 from PIL import Image
 
-from config import VIDEO_CONFIG, SIMILARITY_SEARCH_CONFIG, logger
-from object_detectors import ClothingDetector
-from object_detectors import JewelryDetector
+from config import (
+    VIDEO_CONFIG,
+    SIMILARITY_SEARCH_CONFIG,
+    FRAME_QUALITY_CONFIG,
+    PERSON_DETECTION_CONFIG,
+    logger,
+)
+from object_detectors import ClothingDetector, JewelryDetector, PersonDetector
+from frame_quality_assessor import FrameQualityAssessor
 from image_similarity_search import ImageSimilaritySearch
 from models import VideoInfo, ProductResult
 
@@ -27,12 +33,18 @@ class VideoProcessorManager:
         self.videos: Dict[str, VideoInfo] = {}
         self.detector: Optional[ClothingDetector] = None
         self.jewelry_detector: Optional[JewelryDetector] = None
+        self.person_detector: Optional[PersonDetector] = None
+        self.quality_assessor: Optional[FrameQualityAssessor] = None
 
         # Separate similarity search instances for clothing and jewelry
         self.clothing_similarity_search: Optional[ImageSimilaritySearch] = None
         self.jewelry_similarity_search: Optional[ImageSimilaritySearch] = None
 
-        logger.info("VideoProcessorManager initialized with separate databases")
+        logger.info(
+            "VideoProcessorManager initialized with intelligent frame selection "
+            f"(Quality Check: {FRAME_QUALITY_CONFIG.enable_quality_check}, "
+            f"Person Detection: {PERSON_DETECTION_CONFIG.enable_person_detection})"
+        )
 
         # Load existing videos from data/uploads directory
         self._load_existing_videos()
@@ -50,6 +62,20 @@ class VideoProcessorManager:
             logger.info("Loading jewelry detector...")
             self.jewelry_detector = JewelryDetector()
         return self.jewelry_detector
+
+    def _get_person_detector(self) -> PersonDetector:
+        """Lazy load the person detector."""
+        if self.person_detector is None:
+            logger.info("Loading person detector...")
+            self.person_detector = PersonDetector()
+        return self.person_detector
+
+    def _get_quality_assessor(self) -> FrameQualityAssessor:
+        """Lazy load the frame quality assessor."""
+        if self.quality_assessor is None:
+            logger.info("Loading frame quality assessor...")
+            self.quality_assessor = FrameQualityAssessor()
+        return self.quality_assessor
 
     def _get_clothing_similarity_search(self) -> ImageSimilaritySearch:
         """Lazy load the clothing similarity search engine."""
@@ -224,11 +250,83 @@ class VideoProcessorManager:
                 video_info.status = "failed"
                 video_info.error_message = str(e)
 
+    def _select_best_frame_in_range(
+        self,
+        cap: cv2.VideoCapture,
+        center_frame_num: int,
+        fps: float,
+        search_range_seconds: float = 1.0,
+    ) -> Optional[tuple]:
+        """
+        Select the best quality frame within a time range around the center frame.
+
+        Args:
+            cap: OpenCV VideoCapture object
+            center_frame_num: Center frame number to search around
+            fps: Video frames per second
+            search_range_seconds: Time range to search (in seconds)
+
+        Returns:
+            Tuple of (frame, frame_number, quality_score) or None if no good frame found
+        """
+        quality_assessor = self._get_quality_assessor()
+
+        # Calculate search range in frames
+        search_range_frames = int(fps * search_range_seconds)
+
+        # Define search window
+        start_frame = max(0, center_frame_num - search_range_frames)
+        end_frame = center_frame_num + search_range_frames
+
+        best_frame = None
+        best_frame_num = center_frame_num
+        best_quality = -1.0
+
+        # Try frames in order: center, center+1, center-1, center+2, center-2, etc.
+        offsets = [0]
+        for i in range(1, search_range_frames + 1):
+            offsets.extend([i, -i])
+
+        for offset in offsets:
+            frame_num = center_frame_num + offset
+
+            if frame_num < start_frame or frame_num > end_frame:
+                continue
+
+            # Read frame
+            cap.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+            ret, frame = cap.read()
+
+            if not ret:
+                continue
+
+            # Assess quality
+            is_good, quality_score, _ = quality_assessor.assess_frame_quality(frame)
+
+            if quality_score > best_quality:
+                best_quality = quality_score
+                best_frame = frame.copy()
+                best_frame_num = frame_num
+
+                # If we found a good quality frame, we can stop early
+                if is_good:
+                    logger.debug(
+                        f"Found good quality frame at offset {offset} "
+                        f"(quality: {quality_score:.3f})"
+                    )
+                    break
+
+        if best_frame is not None:
+            return best_frame, best_frame_num, best_quality
+
+        return None
+
     def _extract_and_process_frames(
         self, video_path: str, results_dir: Path
     ) -> Dict[float, List[Dict]]:
         """
-        Extract frames at intervals and process each frame.
+        Extract frames at intervals and process each frame with intelligent selection.
+        Uses quality assessment and person detection to select optimal frames.
 
         Args:
             video_path: Path to the video file
@@ -259,48 +357,84 @@ class VideoProcessorManager:
         frame_interval = int(fps * interval_seconds)
 
         frames_data = {}
-        frame_count = 0
+        skipped_quality = 0
+        skipped_person = 0
+        processed_count = 0
+
+        # Lazy load detectors
         detector = self._get_detector()
         jewelry_detector = self._get_jewelry_detector()
+        person_detector = self._get_person_detector()
+        quality_assessor = self._get_quality_assessor()
 
         try:
-            while True:
-                ret, frame = cap.read()
-                if not ret:
-                    break
+            # Process at intervals
+            for interval_idx in range(0, total_frames, frame_interval):
+                # Select best frame around this interval
+                frame_result = self._select_best_frame_in_range(
+                    cap,
+                    interval_idx,
+                    fps,
+                    FRAME_QUALITY_CONFIG.fallback_search_range,
+                )
 
-                # Process frame at intervals
-                if frame_count % frame_interval == 0:
-                    timestamp = frame_count / fps
-                    logger.info(f"Processing frame at {timestamp:.2f}s")
+                if frame_result is None:
+                    logger.warning(f"Could not read frame at interval {interval_idx}")
+                    skipped_quality += 1
+                    continue
 
-                    # Save frame image
-                    frame_path = frames_dir / f"frame_{timestamp:.1f}s.jpg"
-                    cv2.imwrite(str(frame_path), frame)
+                frame, frame_num, quality_score = frame_result
+                timestamp = frame_num / fps
 
-                    # Convert to PIL Image for detection
-                    frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    pil_image = Image.fromarray(frame_rgb)
+                logger.info(
+                    f"Processing frame at {timestamp:.2f}s "
+                    f"(quality: {quality_score:.3f})"
+                )
 
-                    # Detect objects (both clothing and jewelry)
-                    detections = self._detect_objects_in_frame(
-                        pil_image, detector, jewelry_detector
+                # Convert to PIL Image for detection
+                frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                pil_image = Image.fromarray(frame_rgb)
+
+                # Check if person is present
+                has_person = person_detector.is_person_present(pil_image)
+
+                if not has_person:
+                    logger.info(
+                        f"Skipping frame at {timestamp:.2f}s - No person detected"
                     )
+                    skipped_person += 1
+                    continue
 
-                    # Find similar products for each detection
-                    products = self._find_similar_products(
-                        detections, pil_image, frames_dir, timestamp
-                    )
+                # Get person bounding box for focused detection
+                person_box = person_detector.get_primary_person_box(pil_image)
 
-                    if products:
-                        frames_data[timestamp] = products
+                # Save frame image
+                frame_path = frames_dir / f"frame_{timestamp:.1f}s.jpg"
+                cv2.imwrite(str(frame_path), frame)
 
-                frame_count += 1
+                # Detect objects (both clothing and jewelry)
+                # If person box available, focus detection on person region
+                detections = self._detect_objects_in_frame(
+                    pil_image, detector, jewelry_detector, person_box
+                )
+
+                # Find similar products for each detection
+                products = self._find_similar_products(
+                    detections, pil_image, frames_dir, timestamp
+                )
+
+                if products:
+                    frames_data[timestamp] = products
+                    processed_count += 1
 
         finally:
             cap.release()
 
-        logger.info(f"Extracted and processed {len(frames_data)} frames")
+        logger.info(
+            f"Frame processing complete - Processed: {processed_count}, "
+            f"Skipped (quality): {skipped_quality}, "
+            f"Skipped (no person): {skipped_person}"
+        )
         return frames_data
 
     def _detect_objects_in_frame(
@@ -308,22 +442,53 @@ class VideoProcessorManager:
         image: Image.Image,
         detector: ClothingDetector,
         jewelry_detector: JewelryDetector,
+        person_box: Optional[tuple] = None,
     ) -> List[Dict]:
         """
         Detect objects in a single frame using both clothing and jewelry detectors.
+        Optionally focuses detection on person region for improved accuracy.
 
         Args:
             image: PIL Image object
             detector: ClothingDetector instance for clothing
             jewelry_detector: JewelryDetector instance for jewelry
+            person_box: Optional (x1, y1, x2, y2) tuple for person bounding box
 
         Returns:
             List of detection dictionaries from both detectors
         """
         detections = []
 
+        # If person box provided, crop to person region for detection
+        if person_box is not None:
+            x1, y1, x2, y2 = person_box
+            # Add small padding around person box
+            padding = 0.05
+            width = x2 - x1
+            height = y2 - y1
+            pad_x = int(width * padding)
+            pad_y = int(height * padding)
+
+            # Apply padding with bounds checking
+            crop_x1 = max(0, x1 - pad_x)
+            crop_y1 = max(0, y1 - pad_y)
+            crop_x2 = min(image.size[0], x2 + pad_x)
+            crop_y2 = min(image.size[1], y2 + pad_y)
+
+            # Crop to person region
+            detection_image = image.crop((crop_x1, crop_y1, crop_x2, crop_y2))
+            offset_x, offset_y = crop_x1, crop_y1
+
+            logger.debug(
+                f"Detecting in person region: ({crop_x1},{crop_y1},{crop_x2},{crop_y2})"
+            )
+        else:
+            # Use full image
+            detection_image = image
+            offset_x, offset_y = 0, 0
+
         # Detect clothing items
-        clothing_results = detector.detect_objects(image)
+        clothing_results = detector.detect_objects(detection_image)
         for score, label, box in zip(
             clothing_results["scores"],
             clothing_results["labels"],
@@ -333,10 +498,20 @@ class VideoProcessorManager:
             confidence = score.item()
 
             if confidence >= detector.confidence_threshold:
+                # Map coordinates back to original image if cropped
+                box_coords = box.tolist()
+                if person_box is not None:
+                    box_coords = [
+                        box_coords[0] + offset_x,
+                        box_coords[1] + offset_y,
+                        box_coords[2] + offset_x,
+                        box_coords[3] + offset_y,
+                    ]
+
                 detection = {
                     "label": label_name,
                     "confidence": confidence,
-                    "box": box.tolist(),
+                    "box": box_coords,
                     "category": "clothing",
                 }
                 detections.append(detection)
@@ -345,7 +520,7 @@ class VideoProcessorManager:
                 )
 
         # Detect jewelry items
-        jewelry_results = jewelry_detector.detect_objects(image)
+        jewelry_results = jewelry_detector.detect_objects(detection_image)
         for score, label, box in zip(
             jewelry_results["scores"],
             jewelry_results["labels"],
@@ -355,10 +530,20 @@ class VideoProcessorManager:
             confidence = score
 
             if confidence >= jewelry_detector.confidence_threshold:
+                # Map coordinates back to original image if cropped
+                box_coords = box if isinstance(box, list) else box
+                if person_box is not None and isinstance(box_coords, list):
+                    box_coords = [
+                        box_coords[0] + offset_x,
+                        box_coords[1] + offset_y,
+                        box_coords[2] + offset_x,
+                        box_coords[3] + offset_y,
+                    ]
+
                 detection = {
                     "label": label_name,
                     "confidence": confidence,
-                    "box": box,
+                    "box": box_coords,
                     "category": "jewelry",
                 }
                 detections.append(detection)
@@ -366,7 +551,10 @@ class VideoProcessorManager:
                     f"Detected jewelry: {label_name} with confidence {confidence:.2f}"
                 )
 
-        logger.info(f"Total detections: {len(detections)} (clothing + jewelry)")
+        logger.info(
+            f"Total detections: {len(detections)} (clothing + jewelry) "
+            f"{'in person region' if person_box else 'in full frame'}"
+        )
         return detections
 
     def _find_similar_products(

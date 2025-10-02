@@ -45,6 +45,41 @@ class VideoProcessingConfig:
 
 
 @dataclass
+class FrameQualityConfig:
+    """Configuration for frame quality assessment."""
+
+    # Blur detection - Laplacian variance threshold
+    blur_threshold: float = 100.0  # Frames below this are considered blurry
+
+    # Brightness thresholds (0-255 scale)
+    min_brightness: float = 40.0  # Too dark
+    max_brightness: float = 220.0  # Too bright
+
+    # Frame quality check enabled
+    enable_quality_check: bool = True
+
+    # Nearby frame search range (in seconds) if primary frame fails quality check
+    fallback_search_range: float = 1.0
+
+
+@dataclass
+class PersonDetectionConfig:
+    """Configuration for person detection parameters."""
+
+    # Enable person detection filter
+    enable_person_detection: bool = True
+
+    # Confidence threshold for person detection
+    confidence_threshold: float = 0.5
+
+    # Minimum person size (as fraction of frame area)
+    min_person_area: float = 0.05  # 5% of frame
+
+    # Model checkpoint for person detection
+    checkpoint: str = "facebook/detr-resnet-50"  # DETR model with person detection
+
+
+@dataclass
 class SimilaritySearchConfig:
     """Configuration for image similarity search databases."""
 
@@ -70,3 +105,5 @@ MODEL_CONFIG = ModelConfig()
 JEWELRY_CONFIG = JewelryDetectionConfig()
 VIDEO_CONFIG = VideoProcessingConfig()
 SIMILARITY_SEARCH_CONFIG = SimilaritySearchConfig()
+FRAME_QUALITY_CONFIG = FrameQualityConfig()
+PERSON_DETECTION_CONFIG = PersonDetectionConfig()
